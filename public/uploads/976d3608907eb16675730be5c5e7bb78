@@ -1,0 +1,233 @@
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local Teams = game:GetService("Teams")
+local player = Players.LocalPlayer
+
+-- 1. CLEANUP
+local oldUI = player.PlayerGui:FindFirstChild("Xeno_Pro_Fixed")
+if oldUI then oldUI:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
+ScreenGui.Name = "Xeno_Pro_Fixed"
+ScreenGui.ResetOnSpawn = false
+
+-- 2. UI SETUP
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 520, 0, 420) -- Widened to fit more lists
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame)
+
+local function createScroll(pos, titleText)
+    local label = Instance.new("TextLabel", MainFrame)
+    label.Size = UDim2.new(0, 150, 0, 20)
+    label.Position = pos - UDim2.new(0, 0, 0, 25)
+    label.Text = titleText
+    label.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+    label.BackgroundTransparency = 1
+    
+    local scf = Instance.new("ScrollingFrame", MainFrame)
+    scf.Size = UDim2.new(0, 150, 0, 150)
+    scf.Position = pos
+    scf.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    scf.CanvasSize = UDim2.new(0, 0, 5, 0)
+    scf.ScrollBarThickness = 3
+    Instance.new("UIListLayout", scf).Padding = UDim.new(0, 5)
+    return scf
+end
+
+-- Lists
+local TeamScroll = createScroll(UDim2.new(0, 15, 0, 70), "TARGET TEAM")
+local PlayerScroll = createScroll(UDim2.new(0, 185, 0, 70), "TARGET PLAYER")
+local WeaponScroll = createScroll(UDim2.new(0, 355, 0, 70), "WEAPON")
+
+-- Mode Toggle Button
+local targetMode = "Team" -- Defaults to Team
+local ModeBtn = Instance.new("TextButton", MainFrame)
+ModeBtn.Size = UDim2.new(0, 490, 0, 30)
+ModeBtn.Position = UDim2.new(0, 15, 0, 15)
+ModeBtn.Text = "MODE: TEAM"
+ModeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ModeBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", ModeBtn)
+
+local HuntBtn = Instance.new("TextButton", MainFrame)
+HuntBtn.Size = UDim2.new(0, 490, 0, 50)
+HuntBtn.Position = UDim2.new(0, 15, 0, 260)
+HuntBtn.Text = "START HUNTING"
+HuntBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+HuntBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", HuntBtn)
+
+local BlackBtn = Instance.new("TextButton", MainFrame)
+BlackBtn.Size = UDim2.new(0, 490, 0, 40)
+BlackBtn.Position = UDim2.new(0, 15, 0, 320)
+BlackBtn.Text = "BLACKLIST CURRENT AREA"
+BlackBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
+BlackBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", BlackBtn)
+
+-- 3. LOGIC VARIABLES
+local hunting = false
+local selectedTeam = nil
+local selectedPlayer = nil
+local selectedWeapon = ""
+local blacklistedZones = {}
+local blacklistRadius = 30
+
+-- 4. VISUAL BLACKLIST
+local function createVisualZone(pos)
+    local sphere = Instance.new("Part")
+    sphere.Shape = Enum.PartType.Ball
+    sphere.Position = pos
+    sphere.Size = Vector3.new(blacklistRadius * 2, blacklistRadius * 2, blacklistRadius * 2)
+    sphere.Anchored = true
+    sphere.CanCollide = false
+    sphere.Transparency = 0.7
+    sphere.Color = Color3.new(1, 0, 0)
+    sphere.Material = Enum.Material.ForceField
+    sphere.Parent = workspace
+end
+
+-- 5. LIST UPDATER
+local function updateLists()
+    -- Clear buttons
+    for _, v in pairs(TeamScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+    for _, v in pairs(PlayerScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+    for _, v in pairs(WeaponScroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+    
+    -- Teams
+    for _, t in pairs(Teams:GetTeams()) do
+        local b = Instance.new("TextButton", TeamScroll)
+        b.Size = UDim2.new(1, -10, 0, 30)
+        b.Text = t.Name
+        b.BackgroundColor3 = (selectedTeam == t) and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(45, 45, 45)
+        b.TextColor3 = Color3.new(1, 1, 1)
+        b.MouseButton1Click:Connect(function() 
+            selectedTeam = t
+            selectedPlayer = nil -- Clear player if team is picked
+            updateLists() 
+        end)
+    end
+    
+    -- Players
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player then
+            local b = Instance.new("TextButton", PlayerScroll)
+            b.Size = UDim2.new(1, -10, 0, 30)
+            b.Text = p.DisplayName
+            b.BackgroundColor3 = (selectedPlayer == p) and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(45, 45, 45)
+            b.TextColor3 = Color3.new(1, 1, 1)
+            b.MouseButton1Click:Connect(function() 
+                selectedPlayer = p
+                selectedTeam = nil -- Clear team if player is picked
+                updateLists() 
+            end)
+        end
+    end
+    
+    -- Weapons
+    local items = player.Backpack:GetChildren()
+    if player.Character then 
+        for _, i in pairs(player.Character:GetChildren()) do 
+            if i:IsA("Tool") then table.insert(items, i) end 
+        end 
+    end
+    
+    for _, tool in pairs(items) do
+        if tool:IsA("Tool") then
+            local b = Instance.new("TextButton", WeaponScroll)
+            b.Size = UDim2.new(1, -10, 0, 30)
+            b.Text = tool.Name
+            b.BackgroundColor3 = (selectedWeapon == tool.Name) and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(45, 45, 45)
+            b.TextColor3 = Color3.new(1, 1, 1)
+            b.MouseButton1Click:Connect(function() selectedWeapon = tool.Name updateLists() end)
+        end
+    end
+end
+
+updateLists()
+
+-- 6. BUTTON ACTIONS
+ModeBtn.MouseButton1Click:Connect(function()
+    if targetMode == "Team" then
+        targetMode = "Player"
+        ModeBtn.Text = "MODE: PLAYER"
+    else
+        targetMode = "Team"
+        ModeBtn.Text = "MODE: TEAM"
+    end
+end)
+
+HuntBtn.MouseButton1Click:Connect(function()
+    hunting = not hunting
+    HuntBtn.Text = hunting and "KILLING..." or "START HUNTING"
+    HuntBtn.BackgroundColor3 = hunting and Color3.fromRGB(180, 0, 0) or Color3.fromRGB(40, 40, 40)
+end)
+
+BlackBtn.MouseButton1Click:Connect(function()
+    local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if root then
+        table.insert(blacklistedZones, root.Position)
+        createVisualZone(root.Position)
+    end
+end)
+
+-- 7. THE ENGINE
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if hunting and selectedWeapon ~= "" then
+            local char = player.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            local hum = char and char:FindFirstChild("Humanoid")
+            
+            if root and hum and hum.Health > 0 then
+                local targetChar = nil
+                
+                if targetMode == "Team" and selectedTeam then
+                    -- Find nearest/any valid person in that team
+                    for _, v in pairs(Players:GetPlayers()) do
+                        if v ~= player and v.Team == selectedTeam and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local tRoot = v.Character.HumanoidRootPart
+                            local tHum = v.Character:FindFirstChild("Humanoid")
+                            
+                            if tHum and tHum.Health > 0 then
+                                local inBlacklist = false
+                                for _, zonePos in pairs(blacklistedZones) do
+                                    if (tRoot.Position - zonePos).Magnitude < blacklistRadius then
+                                        inBlacklist = true; break
+                                    end
+                                end
+                                
+                                if not inBlacklist then
+                                    targetChar = v.Character
+                                    break
+                                end
+                            end
+                        end
+                    end
+                elseif targetMode == "Player" and selectedPlayer then
+                    -- Target specific player
+                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local tHum = selectedPlayer.Character:FindFirstChild("Humanoid")
+                        if tHum and tHum.Health > 0 then
+                            targetChar = selectedPlayer.Character
+                        end
+                    end
+                end
+
+                if targetChar then
+                    local tool = char:FindFirstChild(selectedWeapon) or player.Backpack:FindFirstChild(selectedWeapon)
+                    if tool then
+                        if tool.Parent == player.Backpack then hum:EquipTool(tool) end
+                        root.CFrame = targetChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                        tool:Activate()
+                    end
+                end
+            end
+        end
+    end
+end)
