@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1566401329134436445';
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YXsJbWZep1P6AYzO8RKfvDD6p5alV3vC';
-const CALLBACK_URL = process.env.CALLBACK_URL || 'http://localhost:3000/auth/discord/callback';
+const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptforexenet.vercel.app/auth/discord/callback';
 const ADMIN_DISCORD_ID = '1287363175158644757';
 
 app.use(express.json());
