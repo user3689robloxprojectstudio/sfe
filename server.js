@@ -314,4 +314,11 @@ app.post('/api/users/bio', (req, res) => {
     res.json({ success: true });
 });
 
+// At the bottom of server.js for Cloudflare Workers compatibility
+export default {
+    async fetch(request, env, ctx) {
+        return app.handle(request); // If using an adapter or serverless wrapper
+    }
+};
+
 app.listen(PORT, () => console.log(`ScriptsForExe.gg running on port ${PORT}`));
