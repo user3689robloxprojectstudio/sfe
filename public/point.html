@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard & Points | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #07090e; --surface: rgba(18, 24, 38, 0.75); --primary: #38bdf8; --warning: #f59e0b; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { max-width: 700px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px; backdrop-filter: blur(12px); }
+        .rank-item { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.6); padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h1 style="font-size:1.8rem; font-weight:800; color:var(--primary);">🏆 Global Leaderboard</h1>
+            <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Back Home</a>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:25px;">Earn points by uploading scripts, getting likes, and following other developers! (Max 50 points per tier).</p>
+        
+        <div id="leaderboardList" style="display:flex; flex-direction:column; gap:10px;">
+            <p style="color:var(--text-muted);">Loading leaderboard...</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadLeaderboard() {
+            const res = await fetch('/api/leaderboard');
+            const list = await res.json();
+            const container = document.getElementById('leaderboardList');
+            
+            container.innerHTML = list.map((u, index) => `
+                <div class="rank-item">
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <span style="font-weight:800; font-size:1.1rem; color:${index === 0 ? '#f59e0b' : index === 1 ? '#94a3b8' : index === 2 ? '#b45309' : 'var(--text-muted)'};">#${index + 1}</span>
+                        <img src="${u.avatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid var(--primary);">
+                        <div>
+                            <strong style="font-size:1rem; cursor:pointer;" onclick="window.location.href='/profile.html?id=${u.id}'">${u.username} ${u.verified ? '✅' : ''}</strong>
+                        </div>
+                    </div>
+                    <span style="font-weight:800; color:var(--warning); font-size:1.05rem;">⭐ ${u.points} pts</span>
+                </div>
+            `).join('');
+        }
+        loadLeaderboard();
+    </script>
+</body>
+</html>

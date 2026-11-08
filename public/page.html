@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Details | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --sidebar-bg: #07090e;
+            --surface: #121826;
+            --primary: #38bdf8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        aside { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; padding: 25px 20px; z-index: 1000; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: #fff; text-decoration: none; margin-bottom: 30px; display: block; }
+        .logo img { height: 32px; width: auto; display: block; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; list-style: none; }
+        .sidebar-menu a { color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
+        
+        .sidebar-account { border-top: 1px solid var(--border); padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-btn { background: var(--primary); color: #0b0f19; text-align: center; padding: 10px; border-radius: 12px; font-weight: 800; text-decoration: none; display: block; }
+
+        main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; padding: 35px 50px; max-width: 1000px; }
+        .back-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; transition: 0.2s; }
+        .back-link:hover { color: var(--primary); }
+
+        .script-container { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; gap: 24px; margin-bottom: 30px; }
+        .script-header-flex { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+        .script-title-area h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+        
+        .author-pill { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 6px 14px; border-radius: 30px; text-decoration: none; color: var(--text-main); transition: 0.2s; cursor: pointer; margin-top: 4px; }
+        .author-pill:hover { border-color: var(--primary); background: rgba(56, 189, 248, 0.05); }
+        .author-pill img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+        .author-pill span { font-weight: 700; font-size: 0.85rem; }
+
+        .script-actions { display: flex; gap: 12px; align-items: center; }
+        .btn { background: var(--primary); color: #0b0f19; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.9rem; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(56,189,248,0.05); }
+
+        .script-image-preview { width: 100%; max-height: 350px; border-radius: 14px; object-fit: cover; border: 1px solid var(--border); background: #1e293b; }
+        .section-box-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; }
+        .code-box { background: #07090e; border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-family: monospace; font-size: 0.9rem; color: var(--primary); overflow-x: auto; white-space: pre-wrap; }
+        .meta-row { display: flex; gap: 20px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 15px; }
+
+        .comments-section { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 30px; }
+        .comment-input-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .comment-input-box input { flex: 1; background: #07090e; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: #fff; outline: none; font-size: 0.9rem; }
+        .comment-input-box input:focus { border-color: var(--primary); }
+        .comment-list { display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { background: #07090e; border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); }
+        .comment-user { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-main); font-weight: 700; }
+        .comment-user img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+        .comment-text { font-size: 0.9rem; color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div>
+            <a href="/" class="logo">
+                <img src="/logo.png" alt="ScriptsForExe.gg" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display:none;">ScriptsForExe<span style="color: var(--primary);">.gg</span></span>
+            </a>
+            <ul class="sidebar-menu">
+                <li><a href="/">🏠 Home</a></li>
+                <li><a onclick="checkAuth('/upload.html')">➕ Upload Script</a></li>
+                <li><a onclick="checkAuth('/profile.html')">👤 Profile</a></li>
+                <li><a onclick="checkAuth('/settings.html')">⚙️ Settings</a></li>
+                <li id="admin-sidebar" style="display:none;"><a href="/admin.html">🛡️ Admin Panel</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-account" id="sidebarAuth">
+            <a href="/auth/discord" class="sidebar-btn">🪐 Login with Discord</a>
+        </div>
+    </aside>
+
+    <main>
+        <a href="/" class="back-link">← Back to Index</a>
+
+        <div id="scriptDetails" style="display: flex; flex-direction: column; gap: 30px;">
+            <p style="color:var(--text-muted);">Loading script...</p>
+        </div>
+
+        <div class="comments-section">
+            <h3 class="section-box-title" style="margin-bottom: 15px;">💬 Discussion</h3>
+            <div class="comment-input-box">
+                <input type="text" id="commentInput" placeholder="Write a comment..." onkeydown="if(event.key==='Enter') postComment()">
+                <button class="btn" onclick="postComment()">Post</button>
+            </div>
+            <div id="commentsList" class="comment-list">
+                <p style="color:var(--text-muted); font-size:0.9rem;">Loading comments...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const scriptId = urlParams.get('id');
+        let currentScript = null;
+
+        async function checkAuth(destination) {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            if (data.authenticated) window.location.href = destination;
+            else { alert('Please log in with Discord first.'); window.location.href = '/auth/discord'; }
+        }
+
+        async function initPage() {
+            try {
+                const meRes = await fetch('/api/me');
+                const meData = await meRes.json();
+                if (meData.authenticated && meData.user.username && meData.user.username !== 'undefined') {
+                    document.getElementById('sidebarAuth').innerHTML = `<a href="/logout" style="color:#ef4444; text-decoration:none; font-weight:700; text-align:center;">🚪 Log Out</a>`;
+                }
+
+                const adminRes = await fetch('/api/admin/check');
+                const adminData = await adminRes.json();
+                if (adminData.admin) document.getElementById('admin-sidebar').style.display = 'block';
+
+                if (!scriptId) {
+                    document.getElementById('scriptDetails').innerHTML = '<p style="color:var(--danger);">Invalid Script ID.</p>';
+                    return;
+                }
+
+                const res = await fetch(`/api/scripts/${scriptId}`);
+                if (!res.ok) {
+                    document.getElementById('scriptDetails').innerHTML = '<p style="color:var(--danger);">Script not found.</p>';
+                    return;
+                }
+
+                currentScript = await res.json();
+                renderScript(currentScript);
+                renderComments(currentScript.comments || []);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('scriptDetails').innerHTML = '<p style="color:var(--danger);">Error loading script data.</p>';
+            }
+        }
+
+        function renderScript(s) {
+            const author = s.author || {};
+            const authorId = author.id || author.username;
+            const authorName = author.username || 'Unknown';
+            const authorAvatar = author.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+            let likeCount = Array.isArray(s.likes) ? s.likes.length : (typeof s.likes === 'number' ? s.likes : 0);
+            const scriptCode = s.code || s.scriptContent || s.sourceCode || '-- No code provided';
+
+            const html = `
+                <div class="script-container">
+                    <div class="script-header-flex">
+                        <div class="script-title-area">
+                            <h1>${s.title || 'Untitled Script'}</h1>
+                            <a href="/profile.html?id=${authorId}" class="author-pill">
+                                <img src="${authorAvatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <span>by ${authorName}</span>
+                            </a>
+                        </div>
+                        <div class="script-actions">
+                            <button class="btn btn-outline" onclick="toggleLike()">❤️ ${likeCount} Likes</button>
+                            <button class="btn" onclick="copyCode()">📋 Copy Script</button>
+                        </div>
+                    </div>
+
+                    ${s.image ? `<img src="${s.image}" class="script-image-preview">` : ''}
+
+                    <div>
+                        <h3 class="section-box-title">Description</h3>
+                        <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">${s.description || 'No description provided.'}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="section-box-title">Source Code</h3>
+                        <div class="code-box">${escapeHtml(scriptCode)}</div>
+                    </div>
+
+                    <div class="meta-row">
+                        <span>👁️ ${s.views || 0} Views</span>
+                        <span>🔑 ${s.hasKeySystem ? 'Key System Required' : 'No Key System'}</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('scriptDetails').innerHTML = html;
+        }
+
+        function renderComments(comments) {
+            const container = document.getElementById('commentsList');
+            if (!comments || comments.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No comments yet. Be the first to start the discussion!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            comments.forEach(c => {
+                const author = c.author || {};
+                const authorId = author.id || author.username;
+                const authorName = author.username || 'Unknown';
+                const authorAvatar = author.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+                container.innerHTML += `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <a href="/profile.html?id=${authorId}" class="comment-user">
+                                <img src="${authorAvatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                <span>${authorName}</span>
+                            </a>
+                            <span>${new Date(c.createdAt || Date.now()).toLocaleDateString()}</span>
+                        </div>
+                        <div class="comment-text">${escapeHtml(c.text)}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function copyCode() {
+            const scriptCode = currentScript?.code || currentScript?.scriptContent || currentScript?.sourceCode;
+            if (!scriptCode) { alert('No script code available.'); return; }
+            try {
+                await navigator.clipboard.writeText(scriptCode);
+                alert('Script copied to clipboard!');
+            } catch (err) { alert('Failed to copy.'); }
+        }
+
+        async function toggleLike() {
+            const res = await fetch(`/api/scripts/${scriptId}/like`, { method: 'POST' });
+            if (res.status === 401) { alert('Please log in to like scripts.'); window.location.href = '/auth/discord'; return; }
+            if (res.ok) {
+                const updated = await res.json();
+                currentScript.likes = updated.likes;
+                renderScript(currentScript);
+            }
+        }
+
+        async function postComment() {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const res = await fetch(`/api/scripts/${scriptId}/comment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+
+            if (res.status === 401) { alert('Please log in to comment.'); window.location.href = '/auth/discord'; return; }
+            if (res.ok) {
+                const updated = await res.json();
+                currentScript.comments = updated.comments;
+                renderComments(currentScript.comments);
+                input.value = '';
+            }
+        }
+
+        function escapeHtml(text) {
+            return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        initPage();
+    </script>
+</body>
+</html>

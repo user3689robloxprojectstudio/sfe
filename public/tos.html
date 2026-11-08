@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | TheRoPlayer Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #07090e;
+            --surface: rgba(30, 41, 59, 0.7);
+            --primary: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            animation: fadeInPage 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Topbar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(7, 9, 14, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 40px;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+
+        /* Content */
+        .main-content {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 140px 20px 80px 20px;
+        }
+
+        .tos-box {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            margin-top: 30px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        p, li {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(7, 9, 14, 0.9);
+            border-top: 1px solid var(--border);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar Navigation -->
+    <nav>
+        <a href="index.html" class="nav-logo">TheRoPlayer Tools</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="tos.html" class="active">Terms of Service</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="tos-box">
+            <h1>Terms of Service</h1>
+            <p>Last updated: June 2026</p>
+
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and downloading assets from TheRoPlayer Tools, you agree to be bound by these Terms of Service. If you do not agree, please refrain from using our platform.</p>
+
+            <h2>2. Uncopylocked Assets Usage</h2>
+            <p>All assets provided on this website are designated as uncopylocked tool kits for developers. You are permitted to:</p>
+            <ul>
+                <li>Modify and use scripts and maps in your personal and commercial experiences.</li>
+                <li>Customize panels and chassis to fit your game requirements.</li>
+            </ul>
+
+            <h2>3. Restrictions</h2>
+            <p>You may not redistribute raw downloadable files as your own proprietary download links or resell the standalone uncopylocked kits without significant modifications.</p>
+
+            <h2>4. Disclaimer</h2>
+            <p>The assets are provided "as is" without warranty of any kind. TheRoPlayer Tools is not responsible for any data loss or bugs encountered within Roblox studio implementations.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <ul class="footer-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tos.html">Terms of Service</a></li>
+            </ul>
+            <p class="copyright">&copy; 2026 TheRoPlayer Tools. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #07090e; --surface: rgba(18, 24, 38, 0.75); --primary: #38bdf8; --danger: #ef4444; --success: #22c55e; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 40px; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 35px; backdrop-filter: blur(12px); }
+        .btn { padding: 6px 14px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h1 style="font-size:1.8rem; font-weight:800; color:var(--primary);">🛡️ Modern Admin Suite</h1>
+            <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Return Home</a>
+        </div>
+        <h3 style="margin-bottom:15px; font-size:1.1rem;">Registered User Management</h3>
+        <div id="usersList" style="display:flex; flex-direction:column; gap:10px;">Loading users...</div>
+    </div>
+    <script>
+
+        async function loadUsers() {
+    const container = document.getElementById('usersContainer'); // adjust to your element ID
+    try {
+        const res = await fetch('/api/admin/users');
+        if (!res.ok) throw new Error('Failed to fetch users');
+        
+        const users = await res.json();
+        container.innerHTML = ''; // Clear loading state
+
+        if (users.length === 0) {
+            container.innerHTML = '<p>No users found.</p>';
+            return;
+        }
+
+        users.forEach(user => {
+            // Render your user rows/cards here
+            container.innerHTML += `
+                <div class="user-row">
+                    <img src="${user.avatar}" width="30" style="border-radius:50%">
+                    <span>${user.username}</span>
+                    <span>${user.isAdmin ? '🛡️ Admin' : '👤 User'}</span>
+                </div>
+            `;
+        });
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p style="color: #ef4444;">Error loading users. Check console.</p>';
+    }
+}
+
+loadUsers();
+
+        async function loadAdmin() {
+            const check = await fetch('/api/admin/check').then(r => r.json());
+            if (!check.admin) { alert('Access Denied'); window.location.href = '/'; return; }
+            const users = await fetch('/api/admin/users').then(r => r.json());
+            const list = document.getElementById('usersList');
+            
+            list.innerHTML = Object.values(users).map(u => `
+                <div style="background:rgba(15,23,42,0.8); padding:14px; border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${u.avatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                        <div>
+                            <strong>${u.username}</strong> 
+                            <p style="font-size:0.75rem; color:var(--text-muted);">Points: ${u.points || 0} ⭐</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn" style="background:${u.verified?'var(--success)':'rgba(255,255,255,0.1)'}; color:#fff;" onclick="toggleVerify('${u.id}')">${u.verified?'Verified ✅':'Verify'}</button>
+                        <button class="btn" style="background:${u.banned?'var(--danger)':'rgba(239,68,68,0.2)'}; color:#fff;" onclick="toggleBan('${u.id}')">${u.banned?'Banned ❌':'Ban'}</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        async function toggleVerify(id) { await fetch(`/api/admin/verify/${id}`, {method:'POST'}); loadAdmin(); }
+        async function toggleBan(id) { await fetch(`/api/admin/users/${id}/ban`, {method:'POST'}); loadAdmin(); }
+        loadAdmin();
+    </script>
+</body>
+</html>

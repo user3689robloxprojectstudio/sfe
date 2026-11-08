@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Rules | TheRoPlayer Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #07090e; --surface: rgba(30, 41, 59, 0.7); --primary: #38bdf8; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        nav { position: fixed; top: 0; left: 0; width: 100%; background: rgba(7, 9, 14, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 18px 40px; z-index: 1000; }
+        .nav-logo { font-size: 1.25rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .nav-links { display: flex; gap: 25px; list-style: none; align-items: center; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .main-content { max-width: 800px; width: 100%; margin: 130px auto 60px auto; padding: 0 20px; flex: 1; }
+        .rules-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px; margin-bottom: 25px; }
+        h1 { font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 15px; }
+        h2 { font-size: 1.3rem; margin-bottom: 10px; color: #fff; }
+        p, li { color: var(--text-muted); line-height: 1.6; font-size: 1rem; }
+        ul { padding-left: 20px; display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="nav-logo">TheRoPlayer Tools</a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/upload.html">Upload</a></li>
+            <li><a href="/rules.html" class="active">Rules</a></li>
+            <li><a href="/tos.html">Terms</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="rules-card">
+            <h1>📜 Community Rules</h1>
+            <p>To keep TheRoPlayer Tools safe, secure, and useful for all Roblox developers, everyone must follow these core platform rules.</p>
+        </div>
+
+        <div class="rules-card">
+            <h2>1. Uncopylocked Assets Only</h2>
+            <p>All uploaded games (.rbxl) and scripts (.lua) must genuinely be uncopylocked or open-source community tools. Do not upload stolen copyrighted paid plugins or malicious backdoored assets.</p>
+        </div>
+
+        <div class="rules-card">
+            <h2>2. Clean & Respectful Interaction</h2>
+            <p>Harassment, hate speech, spamming comments, or posting malicious links in comment sections or user bios will result in an immediate and permanent account ban.</p>
+        </div>
+
+        <div class="rules-card">
+            <h2>3. No Malicious Scripts / Viruses</h2>
+            <p>Uploading scripts containing intentional grabbers, webhooks stealers, or trojans will result in an immediate blacklist and ban from the platform.</p>
+        </div>
+
+        <div class="rules-card">
+            <h2>4. Consequences of Breaking Rules</h2>
+            <p>Administrators hold full authority to review, edit, or delete violating posts and ban users. Banned users are completely blocked from entering the website until an administrator manually unbans their account.</p>
+        </div>
+    </div>
+
+</body>
+</html>

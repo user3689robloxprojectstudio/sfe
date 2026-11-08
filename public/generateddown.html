@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Script | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface: rgba(30, 41, 59, 0.65);
+            --primary: #38bdf8;
+            --success: #22c55e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { max-width: 750px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .code-box { background: #050b07; color: #00ff66; font-family: 'Share Tech Mono', monospace; padding: 20px; border-radius: 14px; border: 1px solid rgba(0,255,102,0.2); max-height: 280px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; font-size: 0.95rem; margin-bottom: 25px; }
+        .action-row { display: flex; gap: 12px; }
+        .btn-main { flex: 1; padding: 14px; background: var(--primary); color: #0b0f19; font-weight: 800; border-radius: 12px; text-decoration: none; text-align: center; }
+        .btn-copy { flex: 1; padding: 14px; background: var(--success); color: #0b0f19; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container" id="downloadContainer">
+        <p style="color: var(--text-muted);">Loading script data...</p>
+    </div>
+
+    <script>
+        async function initDownload() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { document.getElementById('downloadContainer').innerHTML = '<p style="color:red;">No ID specified.</p>'; return; }
+
+            const res = await fetch(`/api/scripts/${id}`);
+            if (!res.ok) { document.getElementById('downloadContainer').innerHTML = '<p style="color:red;">Script not found.</p>'; return; }
+            const script = await res.json();
+            const authorName = script.author && script.author.username && script.author.username !== 'undefined' ? script.author.username : 'Unknown';
+
+            document.getElementById('downloadContainer').innerHTML = `
+                <div class="header-top">
+                    <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Back Home</a>
+                    <span style="color:var(--success);">🟢 Secure Verified Script</span>
+                </div>
+                <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;">${script.title}</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Game: <span style="color:var(--primary);">${script.gameName}</span> • <a href="${script.gameLink || '#'}" target="_blank" style="color:var(--primary);">🔗 Roblox Link</a> • By <strong>${authorName}</strong></p>
+                <p style="margin-bottom: 15px; line-height: 1.5;">${script.description}</p>
+                <div class="code-box" id="scriptSourceCode">${escapeHtml(script.scriptContent)}</div>
+                <div class="action-row">
+                    <button class="btn-copy" onclick="copyCode()">📋 Copy Raw Script</button>
+                    <a href="data:text/plain;charset=utf-8,${encodeURIComponent(script.scriptContent)}" download="${script.title}.lua" class="btn-main">📥 Download .lua File</a>
+                </div>
+            `;
+        }
+        function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('scriptSourceCode').innerText);
+            alert('Copied to clipboard!');
+        }
+        initDownload();
+    </script>
+</body>
+</html>

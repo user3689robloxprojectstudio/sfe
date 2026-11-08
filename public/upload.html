@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Script | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #0b0f19; --surface: #121826; --primary: #38bdf8; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { background: var(--surface); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: 24px; padding: 40px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+        input[type="text"], textarea { width: 100%; padding: 14px; background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; }
+        input[type="file"] { width: 100%; padding: 12px; background: rgba(7, 9, 14, 0.6); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted); }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+        .checkbox-group input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: #0b0f19; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h1 style="font-size:1.6rem; font-weight:800; color:var(--primary);">🚀 Upload Script</h1>
+            <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Back Home</a>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Script Title</label>
+                <input type="text" name="title" required placeholder="e.g. OP Hub">
+            </div>
+            <div class="form-group">
+                <label>Roblox Game Link</label>
+                <input type="text" name="gameLink" required placeholder="https://www.roblox.com/games/...">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3" required placeholder="Features..."></textarea>
+            </div>
+            <label class="checkbox-group">
+                <input type="checkbox" name="hasKeySystem"> Does this script have a Key System?
+            </label>
+            <div class="form-group">
+                <label>Thumbnail Image</label>
+                <input type="file" name="image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Script File (.lua or .txt)</label>
+                <input type="file" name="scriptFile" accept=".lua,.txt" required>
+            </div>
+            <button type="submit" class="submit-btn">Publish Script</button>
+        </form>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            if (!data.authenticated) window.location.href = '/auth/discord';
+        }
+        checkAuth();
+
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const res = await fetch('/api/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (res.ok) window.location.href = `/page.html?id=${data.scriptId}`;
+            else alert(data.error || 'Upload failed');
+        };
+    </script>
+</body>
+</html>

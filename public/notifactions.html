@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #07090e; --surface: rgba(18, 24, 38, 0.75); --primary: #38bdf8; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { max-width: 650px; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px; backdrop-filter: blur(12px); }
+        .notif-item { background: rgba(15, 23, 42, 0.6); padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h1 style="font-size:1.8rem; font-weight:800; color:var(--primary);">🔔 Notifications</h1>
+            <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Back Home</a>
+        </div>
+        <div id="notifList" style="display:flex; flex-direction:column; gap:8px;">
+            <p style="color:var(--text-muted);">Loading notifications...</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadNotifications() {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            if (!data.authenticated) { window.location.href = '/auth/discord'; return; }
+
+            const list = document.getElementById('notifList');
+            const notifs = data.user.notifications || [];
+
+            if (notifs.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No notifications yet.</p>';
+                return;
+            }
+
+            list.innerHTML = notifs.map(n => `
+                <div class="notif-item">
+                    <span>${n.message}</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                </div>
+            `).join('');
+        }
+        loadNotifications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile | ScriptsForExe.gg</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --sidebar-bg: #07090e;
+            --surface: #121826;
+            --primary: #38bdf8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        aside { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; padding: 25px 20px; z-index: 1000; }
+        .logo { font-size: 1.4rem; font-weight: 800; color: #fff; text-decoration: none; margin-bottom: 30px; display: block; }
+        .logo img { height: 32px; width: auto; display: block; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; list-style: none; }
+        .sidebar-menu a { color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
+        
+        .sidebar-account { border-top: 1px solid var(--border); padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-btn { background: var(--primary); color: #0b0f19; text-align: center; padding: 10px; border-radius: 12px; font-weight: 800; text-decoration: none; display: block; }
+
+        main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; padding: 35px 50px; max-width: 1100px; }
+        .back-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; transition: 0.2s; }
+        .back-link:hover { color: var(--primary); }
+
+        .profile-header { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 30px; display: flex; align-items: center; gap: 24px; margin-bottom: 40px; }
+        .profile-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); background: #1e293b; }
+        .profile-info { display: flex; flex-direction: column; gap: 6px; }
+        .profile-username { font-size: 1.8rem; font-weight: 800; }
+        .profile-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 15px; }
+
+        .section-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+        
+        .script-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; }
+        .script-card:hover { transform: translateY(-3px); border-color: rgba(56,189,248,0.4); }
+        .script-img-wrapper { position: relative; width: 100%; height: 130px; background: #1e293b; }
+        .script-img { width: 100%; height: 100%; object-fit: cover; }
+        .key-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; border: 1px solid var(--border); }
+        .script-body { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .script-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .script-desc { font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
+        .script-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div>
+            <a href="/" class="logo">
+                <img src="/logo.png" alt="ScriptsForExe.gg" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display:none;">ScriptsForExe<span style="color: var(--primary);">.gg</span></span>
+            </a>
+            <ul class="sidebar-menu">
+                <li><a href="/">🏠 Home</a></li>
+                <li><a onclick="checkAuth('/upload.html')">➕ Upload Script</a></li>
+                <li><a href="/profile.html" class="active">👤 Profile</a></li>
+                <li><a onclick="checkAuth('/settings.html')">⚙️ Settings</a></li>
+                <li id="admin-sidebar" style="display:none;"><a href="/admin.html">🛡️ Admin Panel</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-account" id="sidebarAuth">
+            <a href="/auth/discord" class="sidebar-btn">🪐 Login with Discord</a>
+        </div>
+    </aside>
+
+    <main>
+        <a href="/" class="back-link">← Back to Home</a>
+
+        <div id="profileContainer">
+            <p style="color:var(--text-muted);">Loading profile...</p>
+        </div>
+
+        <h3 class="section-title">Uploaded Scripts</h3>
+        <div id="userScriptsGrid" class="grid">
+            <p style="color:var(--text-muted);">Loading user scripts...</p>
+        </div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUserId = urlParams.get('id');
+
+        async function checkAuth(destination) {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            if (data.authenticated) window.location.href = destination;
+            else { alert('Please log in with Discord first.'); window.location.href = '/auth/discord'; }
+        }
+
+        async function initProfile() {
+            try {
+                const meRes = await fetch('/api/me');
+                const meData = await meRes.json();
+                if (meData.authenticated && meData.user.username && meData.user.username !== 'undefined') {
+                    document.getElementById('sidebarAuth').innerHTML = `<a href="/logout" style="color:#ef4444; text-decoration:none; font-weight:700; text-align:center;">🚪 Log Out</a>`;
+                }
+
+                const adminRes = await fetch('/api/admin/check');
+                const adminData = await adminRes.json();
+                if (adminData.admin) document.getElementById('admin-sidebar').style.display = 'block';
+
+                let profileUser = null;
+                let userScripts = [];
+
+                // Fetch scripts list first so we can use it as a fallback lookup
+                const scriptsRes = await fetch('/api/scripts');
+                const allScripts = await scriptsRes.json();
+
+                if (targetUserId) {
+                    // Try fetching from user endpoint
+                    const userRes = await fetch(`/api/users/${targetUserId}`);
+                    if (userRes.ok) {
+                        const data = await userRes.json();
+                        profileUser = data.user;
+                        userScripts = data.scripts || [];
+                    } else {
+                        // Fallback: search inside scripts if user endpoint fails
+                        const matchingScript = allScripts.find(s => s.authorId === targetUserId || s.author?.id === targetUserId);
+                        if (matchingScript && matchingScript.author) {
+                            profileUser = matchingScript.author;
+                        } else {
+                            profileUser = {
+                                id: targetUserId,
+                                username: 'User_' + targetUserId.slice(-4),
+                                avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+                                isAdmin: false
+                            };
+                        }
+                        userScripts = allScripts.filter(s => s.authorId === targetUserId || s.author?.id === targetUserId);
+                    }
+                } else if (meData.authenticated) {
+                    profileUser = meData.user;
+                    userScripts = allScripts.filter(s => s.authorId === profileUser.id || s.author?.id === profileUser.id);
+                }
+
+                if (!profileUser) {
+                    document.getElementById('profileContainer').innerHTML = '<p style="color:var(--danger);">User not found. Please log in.</p>';
+                    document.getElementById('userScriptsGrid').innerHTML = '';
+                    return;
+                }
+
+                renderProfileCard(profileUser);
+                renderUserScripts(userScripts);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('profileContainer').innerHTML = '<p style="color:var(--danger);">Error loading profile data.</p>';
+            }
+        }
+
+        function renderProfileCard(user) {
+            const avatar = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const username = user.username || 'Unknown User';
+
+            const html = `
+                <div class="profile-header">
+                    <img src="${avatar}" class="profile-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div class="profile-info">
+                        <h1 class="profile-username">${username}</h1>
+                        <div class="profile-meta">
+                            <span>🛡️ ${user.isAdmin ? 'Administrator' : 'Community Member'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('profileContainer').innerHTML = html;
+        }
+
+        function renderUserScripts(userScripts) {
+            const grid = document.getElementById('userScriptsGrid');
+            grid.innerHTML = '';
+
+            if (!userScripts || userScripts.length === 0) {
+                grid.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">This user hasn\'t uploaded any scripts yet.</p>';
+                return;
+            }
+
+            userScripts.forEach(s => {
+                const cardHtml = `
+                    <div class="script-card" onclick="window.location.href='/page.html?id=${s.id}'">
+                        <div class="script-img-wrapper">
+                            <div class="key-badge">${s.hasKeySystem ? '🔑 Key System' : '🔓 No Key'}</div>
+                            <img src="${s.image}" class="script-img">
+                        </div>
+                        <div class="script-body">
+                            <div>
+                                <h3 class="script-title">${s.title}</h3>
+                                <p class="script-desc">${s.description}</p>
+                            </div>
+                            <div class="script-meta">
+                                <span>👁️ ${s.views || 0} &nbsp; ❤️ ${s.likes ? s.likes.length : 0}</span>
+                                <span>by ${s.author?.username || 'Unknown'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        initProfile();
+    </script>
+</body>
+</html>
