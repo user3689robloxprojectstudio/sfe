@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1794159926573",
+    "title": "OP 99 Nights Script!!!!! VOIDWARE",
+    "description": "OP Script CHECK IT OUT!",
+    "category": "Roblox",
+    "gameLink": "https://www.roblox.com/games/79546208627805/99-Nights-in-the-Forest",
+    "hasKeySystem": false,
+    "image": "/uploads/84f0891ac5df496d1eb5f962591ca7b1",
+    "scriptContent": "loadstring(game:HttpGet(\"https://rawscripts.net/raw/99-Nights-in-the-Forest-VOIDWARE-122596\"))()",
+    "code": "loadstring(game:HttpGet(\"https://rawscripts.net/raw/99-Nights-in-the-Forest-VOIDWARE-122596\"))()",
+    "author": {
+      "id": "1345820369033887837",
+      "username": "fusion_official",
+      "avatar": "https://cdn.discordapp.com/embed/avatars/1.png"
+    },
+    "authorId": "1345820369033887837",
+    "likes": [
+      "1287363175158644757"
+    ],
+    "comments": [
+      {
+        "id": "1794159946206",
+        "userId": "1287363175158644757",
+        "author": {
+          "id": "1287363175158644757",
+          "username": "theroplayer_official",
+          "avatar": "https://cdn.discordapp.com/avatars/1287363175158644757/95a170614fdca713dd3e6a5c72ffc16b.png?size=256"
+        },
+        "username": "theroplayer_official",
+        "text": "Sick! Is this yours?",
+        "createdAt": "2026-11-08T17:45:46.206Z"
+      }
+    ],
+    "views": 2,
+    "createdAt": "2026-11-08T17:45:26.573Z"
+  },
+  {
+    "id": "1794157100121",
+    "title": "OP BOYS VS GIRLS SCRIPT! [Open Source]",
+    "description": "OP SCRIPT WITH 5+ FEATURES\r\n\r\nAUTO KILL,\r\nTEAM KILL\r\n\r\nUpdates coming soon! 👀👀👀👀",
+    "category": "Roblox",
+    "gameLink": "https://www.roblox.com/games/15597903831/BOYS-VS-GIRLS?gameSearchSessionInfo=ce12d13e-d143-4d73-bddd-8c7fca2f8e85&isAd=false&nativeAdData=&numberOfLoadedTiles=40&page=searchPage&placeId=15597903831&position=0&universeId=5385615377",
+    "hasKeySystem": false,
+    "image": "/uploads/7df51ebeb078222383dcaaa03ae1e0d8",
+    "scriptContent": "local UIS = game:GetService(\"UserInputService\")\r\nlocal Players = game:GetService(\"Players\")\r\nlocal Teams = game:GetService(\"Teams\")\r\nlocal player = Players.LocalPlayer\r\n\r\n-- 1. CLEANUP\r\nlocal oldUI = player.PlayerGui:FindFirstChild(\"Xeno_Pro_Fixed\")\r\nif oldUI then oldUI:Destroy() end\r\n\r\nlocal ScreenGui = Instance.new(\"ScreenGui\", player.PlayerGui)\r\nScreenGui.Name = \"Xeno_Pro_Fixed\"\r\nScreenGui.ResetOnSpawn = false\r\n\r\n-- 2. UI SETUP\r\nlocal MainFrame = Instance.new(\"Frame\", ScreenGui)\r\nMainFrame.Size = UDim2.new(0, 520, 0, 420) -- Widened to fit more lists\r\nMainFrame.Position = UDim2.new(0.5, -260, 0.5, -210)\r\nMainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)\r\nMainFrame.Active = true\r\nMainFrame.Draggable = true\r\nInstance.new(\"UICorner\", MainFrame)\r\n\r\nlocal function createScroll(pos, titleText)\r\n    local label = Instance.new(\"TextLabel\", MainFrame)\r\n    label.Size = UDim2.new(0, 150, 0, 20)\r\n    label.Position = pos - UDim2.new(0, 0, 0, 25)\r\n    label.Text = titleText\r\n    label.TextColor3 = Color3.new(0.8, 0.8, 0.8)\r\n    label.BackgroundTransparency = 1\r\n    \r\n    local scf = Instance.new(\"ScrollingFrame\", MainFrame)\r\n    scf.Size = UDim2.new(0, 150, 0, 150)\r\n    scf.Position = pos\r\n    scf.BackgroundColor3 = Color3.fromRGB(30, 30, 30)\r\n    scf.CanvasSize = UDim2.new(0, 0, 5, 0)\r\n    scf.ScrollBarThickness = 3\r\n    Instance.new(\"UIListLayout\", scf).Padding = UDim.new(0, 5)\r\n    return scf\r\nend\r\n\r\n-- Lists\r\nlocal TeamScroll = createScroll(UDim2.new(0, 15, 0, 70), \"TARGET TEAM\")\r\nlocal PlayerScroll = createScroll(UDim2.new(0, 185, 0, 70), \"TARGET PLAYER\")\r\nlocal WeaponScroll = createScroll(UDim2.new(0, 355, 0, 70), \"WEAPON\")\r\n\r\n-- Mode Toggle Button\r\nlocal targetMode = \"Team\" -- Defaults to Team\r\nlocal ModeBtn = Instance.new(\"TextButton\", MainFrame)\r\nModeBtn.Size = UDim2.new(0, 490, 0, 30)\r\nModeBtn.Position = UDim2.new(0, 15, 0, 15)\r\nModeBtn.Text = \"MODE: TEAM\"\r\nModeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)\r\nModeBtn.TextColor3 = Color3.new(1, 1, 1)\r\nInstance.new(\"UICorner\", ModeBtn)\r\n\r\nlocal HuntBtn = Instance.new(\"TextButton\", MainFrame)\r\nHuntBtn.Size = UDim2.new(0, 490, 0, 50)\r\nHuntBtn.Position = UDim2.new(0, 15, 0, 260)\r\nHuntBtn.Text = \"START HUNTING\"\r\nHuntBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)\r\nHuntBtn.TextColor3 = Color3.new(1, 1, 1)\r\nInstance.new(\"UICorner\", HuntBtn)\r\n\r\nlocal BlackBtn = Instance.new(\"TextButton\", MainFrame)\r\nBlackBtn.Size = UDim2.new(0, 490, 0, 40)\r\nBlackBtn.Position = UDim2.new(0, 15, 0, 320)\r\nBlackBtn.Text = \"BLACKLIST CURRENT AREA\"\r\nBlackBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)\r\nBlackBtn.TextColor3 = Color3.new(1, 1, 1)\r\nInstance.new(\"UICorner\", BlackBtn)\r\n\r\n-- 3. LOGIC VARIABLES\r\nlocal hunting = false\r\nlocal selectedTeam = nil\r\nlocal selectedPlayer = nil\r\nlocal selectedWeapon = \"\"\r\nlocal blacklistedZones = {}\r\nlocal blacklistRadius = 30\r\n\r\n-- 4. VISUAL BLACKLIST\r\nlocal function createVisualZone(pos)\r\n    local sphere = Instance.new(\"Part\")\r\n    sphere.Shape = Enum.PartType.Ball\r\n    sphere.Position = pos\r\n    sphere.Size = Vector3.new(blacklistRadius * 2, blacklistRadius * 2, blacklistRadius * 2)\r\n    sphere.Anchored = true\r\n    sphere.CanCollide = false\r\n    sphere.Transparency = 0.7\r\n    sphere.Color = Color3.new(1, 0, 0)\r\n    sphere.Material = Enum.Material.ForceField\r\n    sphere.Parent = workspace\r\nend\r\n\r\n-- 5. LIST UPDATER\r\nlocal function updateLists()\r\n    -- Clear buttons\r\n    for _, v in pairs(TeamScroll:GetChildren()) do if v:IsA(\"TextButton\") then v:Destroy() end end\r\n    for _, v in pairs(PlayerScroll:GetChildren()) do if v:IsA(\"TextButton\") then v:Destroy() end end\r\n    for _, v in pairs(WeaponScroll:GetChildren()) do if v:IsA(\"TextButton\") then v:Destroy() end end\r\n    \r\n    -- Teams\r\n    for _, t in pairs(Teams:GetTeams()) do\r\n        local b = Instance.new(\"TextButton\", TeamScroll)\r\n        b.Size = UDim2.new(1, -10, 0, 30)\r\n        b.Text = t.Name\r\n        b.BackgroundColor3 = (selectedTeam == t) and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(45, 45, 45)\r\n        b.TextColor3 = Color3.new(1, 1, 1)\r\n        b.MouseButton1Click:Connect(function() \r\n            selectedTeam = t\r\n            selectedPlayer = nil -- Clear player if team is picked\r\n            updateLists() \r\n        end)\r\n    end\r\n    \r\n    -- Players\r\n    for _, p in pairs(Players:GetPlayers()) do\r\n        if p ~= player then\r\n            local b = Instance.new(\"TextButton\", PlayerScroll)\r\n            b.Size = UDim2.new(1, -10, 0, 30)\r\n            b.Text = p.DisplayName\r\n            b.BackgroundColor3 = (selectedPlayer == p) and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(45, 45, 45)\r\n            b.TextColor3 = Color3.new(1, 1, 1)\r\n            b.MouseButton1Click:Connect(function() \r\n                selectedPlayer = p\r\n                selectedTeam = nil -- Clear team if player is picked\r\n                updateLists() \r\n            end)\r\n        end\r\n    end\r\n    \r\n    -- Weapons\r\n    local items = player.Backpack:GetChildren()\r\n    if player.Character then \r\n        for _, i in pairs(player.Character:GetChildren()) do \r\n            if i:IsA(\"Tool\") then table.insert(items, i) end \r\n        end \r\n    end\r\n    \r\n    for _, tool in pairs(items) do\r\n        if tool:IsA(\"Tool\") then\r\n            local b = Instance.new(\"TextButton\", WeaponScroll)\r\n            b.Size = UDim2.new(1, -10, 0, 30)\r\n            b.Text = tool.Name\r\n            b.BackgroundColor3 = (selectedWeapon == tool.Name) and Color3.fromRGB(150, 0, 255) or Color3.fromRGB(45, 45, 45)\r\n            b.TextColor3 = Color3.new(1, 1, 1)\r\n            b.MouseButton1Click:Connect(function() selectedWeapon = tool.Name updateLists() end)\r\n        end\r\n    end\r\nend\r\n\r\nupdateLists()\r\n\r\n-- 6. BUTTON ACTIONS\r\nModeBtn.MouseButton1Click:Connect(function()\r\n    if targetMode == \"Team\" then\r\n        targetMode = \"Player\"\r\n        ModeBtn.Text = \"MODE: PLAYER\"\r\n    else\r\n        targetMode = \"Team\"\r\n        ModeBtn.Text = \"MODE: TEAM\"\r\n    end\r\nend)\r\n\r\nHuntBtn.MouseButton1Click:Connect(function()\r\n    hunting = not hunting\r\n    HuntBtn.Text = hunting and \"KILLING...\" or \"START HUNTING\"\r\n    HuntBtn.BackgroundColor3 = hunting and Color3.fromRGB(180, 0, 0) or Color3.fromRGB(40, 40, 40)\r\nend)\r\n\r\nBlackBtn.MouseButton1Click:Connect(function()\r\n    local root = player.Character and player.Character:FindFirstChild(\"HumanoidRootPart\")\r\n    if root then\r\n        table.insert(blacklistedZones, root.Position)\r\n        createVisualZone(root.Position)\r\n    end\r\nend)\r\n\r\n-- 7. THE ENGINE\r\ntask.spawn(function()\r\n    while true do\r\n        task.wait(0.1)\r\n        if hunting and selectedWeapon ~= \"\" then\r\n            local char = player.Character\r\n            local root = char and char:FindFirstChild(\"HumanoidRootPart\")\r\n            local hum = char and char:FindFirstChild(\"Humanoid\")\r\n            \r\n            if root and hum and hum.Health > 0 then\r\n                local targetChar = nil\r\n                \r\n                if targetMode == \"Team\" and selectedTeam then\r\n                    -- Find nearest/any valid person in that team\r\n                    for _, v in pairs(Players:GetPlayers()) do\r\n                        if v ~= player and v.Team == selectedTeam and v.Character and v.Character:FindFirstChild(\"HumanoidRootPart\") then\r\n                            local tRoot = v.Character.HumanoidRootPart\r\n                            local tHum = v.Character:FindFirstChild(\"Humanoid\")\r\n                            \r\n                            if tHum and tHum.Health > 0 then\r\n                                local inBlacklist = false\r\n                                for _, zonePos in pairs(blacklistedZones) do\r\n                                    if (tRoot.Position - zonePos).Magnitude < blacklistRadius then\r\n                                        inBlacklist = true; break\r\n                                    end\r\n                                end\r\n                                \r\n                                if not inBlacklist then\r\n                                    targetChar = v.Character\r\n                                    break\r\n                                end\r\n                            end\r\n                        end\r\n                    end\r\n                elseif targetMode == \"Player\" and selectedPlayer then\r\n                    -- Target specific player\r\n                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild(\"HumanoidRootPart\") then\r\n                        local tHum = selectedPlayer.Character:FindFirstChild(\"Humanoid\")\r\n                        if tHum and tHum.Health > 0 then\r\n                            targetChar = selectedPlayer.Character\r\n                        end\r\n                    end\r\n                end\r\n\r\n                if targetChar then\r\n                    local tool = char:FindFirstChild(selectedWeapon) or player.Backpack:FindFirstChild(selectedWeapon)\r\n                    if tool then\r\n                        if tool.Parent == player.Backpack then hum:EquipTool(tool) end\r\n                        root.CFrame = targetChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)\r\n                        tool:Activate()\r\n                    end\r\n                end\r\n            end\r\n        end\r\n    end\r\nend)",
+    "author": {
+      "id": "1287363175158644757",
+      "username": "theroplayer_official",
+      "avatar": "https://cdn.discordapp.com/avatars/1287363175158644757/95a170614fdca713dd3e6a5c72ffc16b.png?size=256"
+    },
+    "authorId": "1287363175158644757",
+    "likes": [
+      "1287363175158644757",
+      "1345820369033887837"
+    ],
+    "comments": [
+      {
+        "id": "1794159687895",
+        "userId": "1345820369033887837",
+        "author": {
+          "id": "1345820369033887837",
+          "username": "fusion_official",
+          "avatar": "https://cdn.discordapp.com/embed/avatars/1.png"
+        },
+        "username": "fusion_official",
+        "text": "gg",
+        "createdAt": "2026-11-08T17:41:27.895Z"
+      }
+    ],
+    "views": 21,
+    "createdAt": "2026-11-08T16:58:20.121Z"
+  }
+]
