@@ -35,17 +35,49 @@ passport.deserializeUser((id, done) => {
 
 const activeVisitors = new Map();
 
+// In-memory fallbacks for Vercel read-only filesystem
+let memoryCloudCache = [];
+let memoryUsersCache = {};
+
 function getCloudCache() {
-    if (!fs.existsSync('cloud_cache.json')) fs.writeFileSync('cloud_cache.json', JSON.stringify([]));
-    try { return JSON.parse(fs.readFileSync('cloud_cache.json')); } catch { return []; }
+    try {
+        if (fs.existsSync('cloud_cache.json')) {
+            return JSON.parse(fs.readFileSync('cloud_cache.json', 'utf8'));
+        }
+    } catch {
+        // Fallback to memory if read fails
+    }
+    return memoryCloudCache;
 }
-function saveCloudCache(data) { fs.writeFileSync('cloud_cache.json', JSON.stringify(data, null, 2)); }
+
+function saveCloudCache(data) {
+    memoryCloudCache = data;
+    try {
+        fs.writeFileSync('cloud_cache.json', JSON.stringify(data, null, 2));
+    } catch {
+        // Suppress write errors on read-only environments like Vercel
+    }
+}
 
 function getUsersCache() {
-    if (!fs.existsSync('users_cache.json')) fs.writeFileSync('users_cache.json', JSON.stringify({}));
-    try { return JSON.parse(fs.readFileSync('users_cache.json')); } catch { return {}; }
+    try {
+        if (fs.existsSync('users_cache.json')) {
+            return JSON.parse(fs.readFileSync('users_cache.json', 'utf8'));
+        }
+    } catch {
+        // Fallback to memory if read fails
+    }
+    return memoryUsersCache;
 }
-function saveUsersCache(data) { fs.writeFileSync('users_cache.json', JSON.stringify(data, null, 2)); }
+
+function saveUsersCache(data) {
+    memoryUsersCache = data;
+    try {
+        fs.writeFileSync('users_cache.json', JSON.stringify(data, null, 2));
+    } catch {
+        // Suppress write errors on read-only environments like Vercel
+    }
+}
 
 function addNotification(userId, message) {
     let users = getUsersCache();
@@ -141,10 +173,14 @@ app.get('/api/stats', (req, res) => {
 });
 
 const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+try {
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch {
+    // Read-only filesystem handling for serverless
+}
+
 const upload = multer({ dest: uploadDir });
 
-// --- Unified Script Upload Route ---
 app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
     const users = getUsersCache();
@@ -171,7 +207,7 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         hasKeySystem: hasKeySystem === 'on' || hasKeySystem === true || hasKeySystem === 'true',
         image: imageUrl,
         scriptContent: scriptContent,
-        code: scriptContent, // Backwards compatibility for both keys
+        code: scriptContent,
         author: { id: req.user.id, username: users[req.user.id].username, avatar: users[req.user.id].avatar },
         authorId: req.user.id,
         likes: [],
@@ -258,7 +294,6 @@ app.post('/api/scripts/:id/comment', (req, res) => {
     res.json({ success: true, comments: script.comments, ...script });
 });
 
-// --- User Profile Endpoints (Supports both /api/users/:id and /api/user/:id) ---
 const handleUserProfileLookup = (req, res) => {
     const users = getUsersCache();
     const userId = req.params.id;
@@ -278,7 +313,6 @@ const handleUserProfileLookup = (req, res) => {
 app.get('/api/users/:id', handleUserProfileLookup);
 app.get('/api/user/:id', handleUserProfileLookup);
 
-// --- Admin Panel Users Endpoint ---
 app.get('/api/admin/users', (req, res) => {
     if (!req.isAuthenticated() || req.user.id !== ADMIN_DISCORD_ID) {
         return res.status(403).json({ error: 'Unauthorized' });
@@ -314,11 +348,10 @@ app.post('/api/users/bio', (req, res) => {
     res.json({ success: true });
 });
 
-// At the bottom of server.js for Cloudflare Workers compatibility
-export default {
-    async fetch(request, env, ctx) {
-        return app.handle(request); // If using an adapter or serverless wrapper
-    }
-};
+// For local testing vs Vercel deployment
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`ScriptsForExe.gg running locally on port ${PORT}`));
+}
 
-app.listen(PORT, () => console.log(`ScriptsForExe.gg running on port ${PORT}`));
+// Export app for Vercel serverless environment
+module.exports = app;
