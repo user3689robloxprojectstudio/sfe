@@ -201,17 +201,6 @@ app.get('/api/me', async (req, res) => {
     res.json({ authenticated: true, user });
 });
 
-app.get('/api/stats', async (req, res) => {
-    const users = await getUsersCache();
-    const scripts = await getCloudData();
-    res.json({
-        onlineNow: activeVisitors.size,
-        totalRegistered: Object.keys(users).length,
-        totalScripts: scripts.length,
-        totalExecutions: scripts.reduce((acc, s) => acc + (s.views || 0) * 14, 12450)
-    });
-});
-
 const upload = multer({ dest: os.tmpdir() });
 
 app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), async (req, res) => {
@@ -220,14 +209,12 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
     if (users[req.user.id] && users[req.user.id].banned) return res.status(403).json({ error: 'Banned' });
 
     const { title, description, category, gameLink, hasKeySystem, code: bodyCode } = req.body;
-    
     let scriptContent = bodyCode || '';
     const scriptFile = req.files && req.files['scriptFile'] ? req.files['scriptFile'][0] : null;
     if (scriptFile) {
         try { scriptContent = fs.readFileSync(scriptFile.path, 'utf8'); } catch { scriptContent = '-- Error reading file'; }
     }
 
-    // Convert uploaded image to Base64 to prevent Vercel 404 broken image errors
     let imageUrl = req.body.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600';
     const imageFile = req.files && req.files['image'] ? req.files['image'][0] : null;
     if (imageFile) {
@@ -259,9 +246,7 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
     cache.unshift(newScript);
     await saveCloudData(cache);
     await addPoints(req.user.id, 15);
-    await addNotification(req.user.id, `🎉 You earned 15 points for publishing "${newScript.title}"!`);
-
-    res.json({ success: true, id: newScript.id, scriptId: newScript.id });
+    res.json({ success: true, id: newScript.id });
 });
 
 app.get('/api/scripts', async (req, res) => res.json(await getCloudData()));
@@ -282,7 +267,6 @@ app.get('/api/scripts/:id', async (req, res) => {
 
 app.delete('/api/scripts/:id', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-
     let cache = await getCloudData();
     const scriptIndex = cache.findIndex(s => s.id === req.params.id);
     if (scriptIndex === -1) return res.status(404).json({ error: 'Post not found' });
@@ -349,6 +333,19 @@ app.get('/api/users/:id', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     const cache = await getCloudData();
     res.json({ user, scripts: cache.filter(s => s.authorId === user.id || s.author?.id === user.id) });
+});
+
+// Bio update endpoint (Fixes connection error)
+app.post('/api/users/bio', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
+    const { bio } = req.body;
+    const users = await getUsersCache();
+    if (users[req.user.id]) {
+        users[req.user.id].bio = bio || '';
+        await saveUsersCache(users);
+        return res.json({ success: true });
+    }
+    res.status(404).json({ error: 'User not found' });
 });
 
 if (process.env.NODE_ENV !== 'production') {
