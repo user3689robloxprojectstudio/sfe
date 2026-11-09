@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Script Details - ScriptsForExe.gg</title>
-    <link rel="stylesheet" href="/style.css">
+    <title>Script Details - ScriptForExe.net</title>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 30px auto; background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #334155; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #38bdf8; text-decoration: none; font-weight: 600; }
+        :root { --bg: #0b0f19; --card-bg: #131d31; --accent: #38bdf8; --text: #f8fafc; --muted: #94a3b8; --border: #1e293b; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 30px 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+        .back-link { display: inline-block; margin-bottom: 20px; color: var(--accent); text-decoration: none; font-weight: 600; }
         .back-link:hover { text-decoration: underline; }
-        .script-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 25px; flex-wrap: wrap; }
-        .script-img { width: 220px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid #334155; background: #0f172a; }
-        .script-info h1 { margin: 0 0 10px 0; color: #f8fafc; font-size: 28px; }
-        .script-info p { color: #94a3b8; margin: 0 0 15px 0; line-height: 1.5; }
-        .meta-badges { display: flex; gap: 10px; font-size: 14px; color: #38bdf8; }
-        .code-box-container { margin-top: 25px; }
-        .code-header { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 15px; border-radius: 8px 8px 0 0; border: 1px solid #334155; border-bottom: none; }
-        pre { background: #090d16; padding: 15px; border-radius: 0 0 8px 8px; margin: 0; overflow-x: auto; color: #38bdf8; font-family: monospace; border: 1px solid #334155; max-height: 300px; }
-        .btn { background: #38bdf8; color: #0f172a; padding: 8px 16px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; text-decoration: none; }
+        .script-header { display: flex; gap: 25px; align-items: flex-start; margin-bottom: 30px; flex-wrap: wrap; }
+        .script-img { width: 240px; height: 150px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); background: #000; }
+        .script-info h1 { margin: 0 0 10px 0; color: var(--text); font-size: 30px; font-weight: 800; }
+        .script-info p { color: var(--muted); margin: 0 0 20px 0; line-height: 1.6; font-size: 15px; }
+        .meta-badges { display: flex; gap: 15px; font-size: 14px; color: var(--accent); flex-wrap: wrap; }
+        .code-box-wrap { margin-top: 30px; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; background: #090d16; padding: 12px 18px; border-radius: 10px 10px 0 0; border: 1px solid var(--border); border-bottom: none; font-weight: 600; }
+        pre { background: #060910; padding: 20px; border-radius: 0 0 10px 10px; margin: 0; overflow-x: auto; color: var(--accent); font-family: 'Courier New', monospace; border: 1px solid var(--border); max-height: 350px; font-size: 14px; }
+        .btn { background: var(--accent); color: #0b0f19; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .btn:hover { background: #0ea5e9; }
-        .comments-section { margin-top: 35px; border-top: 1px solid #334155; padding-top: 20px; }
-        .comment-box { background: #0f172a; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155; }
-        .comment-input-area { display: flex; gap: 10px; margin-top: 15px; }
-        textarea { flex-grow: 1; background: #0f172a; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; resize: vertical; min-height: 60px; }
+        .comments-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; }
+        .comment-box { background: #090d16; padding: 14px 18px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .comment-input-area { display: flex; gap: 12px; margin-top: 20px; }
+        textarea { flex-grow: 1; background: #090d16; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; resize: vertical; min-height: 70px; outline: none; }
+        textarea:focus { border-color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <a href="/" class="back-link">← Back to Index</a>
-        
+        <a href="/" class="back-link">← Back to Hub</a>
         <div id="script-content-area">
-            <p style="color: #94a3b8;">Loading script details...</p>
+            <p style="color: var(--muted);">Loading script details...</p>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
 
         async function loadScriptDetails() {
             if (!scriptId) {
-                document.getElementById('script-content-area').innerHTML = '<p style="color: #ef4444;">Script not found.</p>';
+                document.getElementById('script-content-area').innerHTML = '<p style="color: #ef4444;">Script ID missing.</p>';
                 return;
             }
 
@@ -66,49 +66,49 @@
                                 <span>Views: <strong>${script.views || 0}</strong></span>
                                 <span>Likes: <strong id="like-count">${(script.likes || []).length}</strong></span>
                             </div>
-                            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
                                 <button onclick="likeScript()" class="btn" style="background: #ef4444; color: white;">❤️ Like Script</button>
-                                <a href="${script.gameLink || '#'}" target="_blank" class="btn" style="background: #334155; color: white;">🎮 Game Link</a>
+                                <a href="${script.gameLink || '#'}" target="_blank" class="btn" style="background: #1e293b; color: white; border: 1px solid #334155;">🎮 Game Link</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="code-box-container">
+                    <div class="code-box-wrap">
                         <div class="code-header">
-                            <span>Script Code</span>
-                            <button onclick="copyCode()" class="btn" style="padding: 4px 10px; font-size: 12px;">Copy Code</button>
+                            <span>Lua Source Code</span>
+                            <button onclick="copyCode()" class="btn" style="padding: 6px 14px; font-size: 13px;">Copy Code</button>
                         </div>
                         <pre><code id="code-text">${escapeHtml(script.scriptContent || script.code || '-- No code provided')}</code></pre>
                     </div>
 
                     <div class="comments-section">
-                        <h3>Comments</h3>
+                        <h3>Community Comments</h3>
                         <div id="comments-list">
-                            ${(script.comments || []).length === 0 ? '<p style="color: #64748b;">No comments yet.</p>' : ''}
+                            ${(script.comments || []).length === 0 ? '<p style="color: var(--muted);">No comments yet. Be the first!</p>' : ''}
                             ${(script.comments || []).map(c => `
                                 <div class="comment-box">
-                                    <strong style="color: #38bdf8;">${c.author?.username || c.username || 'User'}</strong>
-                                    <p style="margin: 5px 0 0 0; color: #cbd5e1;">${escapeHtml(c.text)}</p>
+                                    <strong style="color: var(--accent);">${c.author?.username || c.username || 'User'}</strong>
+                                    <p style="margin: 6px 0 0 0; color: #cbd5e1; font-size: 14px;">${escapeHtml(c.text)}</p>
                                 </div>
                             `).join('')}
                         </div>
 
                         <div class="comment-input-area">
                             <textarea id="comment-input" placeholder="Write a comment..."></textarea>
-                            <button onclick="postComment()" class="btn" style="align-self: flex-end;">Send</button>
+                            <button onclick="postComment()" class="btn" style="align-self: flex-end;">Post</button>
                         </div>
                     </div>
                 `;
             } catch (err) {
-                console.error('Error loading script detail:', err);
-                document.getElementById('script-content-area').innerHTML = '<p style="color: #ef4444;">Error loading script.</p>';
+                console.error(err);
+                document.getElementById('script-content-area').innerHTML = '<p style="color: #ef4444;">Error loading script data.</p>';
             }
         }
 
         async function copyCode() {
             const code = document.getElementById('code-text').textContent;
             await navigator.clipboard.writeText(code);
-            alert('Script code copied to clipboard!');
+            alert('Script copied to clipboard!');
         }
 
         async function likeScript() {
@@ -120,7 +120,7 @@
                 } else {
                     alert('Please log in with Discord to like scripts.');
                 }
-            } catch (err) {
+            } catch {
                 alert('Error liking script.');
             }
         }
@@ -138,11 +138,11 @@
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById('comment-input').value = '';
-                    loadScriptDetails(); // Reload comments
+                    loadScriptDetails();
                 } else {
                     alert('Please log in with Discord to comment.');
                 }
-            } catch (err) {
+            } catch {
                 alert('Error posting comment.');
             }
         }
