@@ -14,17 +14,29 @@
         .script-img { width: 240px; height: 150px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); background: #000; }
         .script-info h1 { margin: 0 0 10px 0; color: var(--text); font-size: 30px; font-weight: 800; }
         .script-info p { color: var(--muted); margin: 0 0 20px 0; line-height: 1.6; font-size: 15px; }
-        .meta-badges { display: flex; gap: 15px; font-size: 14px; color: var(--accent); flex-wrap: wrap; }
+        .meta-badges { display: flex; gap: 15px; font-size: 14px; color: var(--accent); flex-wrap: wrap; align-items: center; }
+        .author-link { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
+        .author-link:hover { text-decoration: underline; }
+        
         .code-box-wrap { margin-top: 30px; }
         .code-header { display: flex; justify-content: space-between; align-items: center; background: #090d16; padding: 12px 18px; border-radius: 10px 10px 0 0; border: 1px solid var(--border); border-bottom: none; font-weight: 600; }
         pre { background: #060910; padding: 20px; border-radius: 0 0 10px 10px; margin: 0; overflow-x: auto; color: var(--accent); font-family: 'Courier New', monospace; border: 1px solid var(--border); max-height: 350px; font-size: 14px; }
-        .btn { background: var(--accent); color: #0b0f19; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn { background: var(--accent); color: var(--bg); padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .btn:hover { background: #0ea5e9; }
+        
         .comments-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; }
         .comment-box { background: #090d16; padding: 14px 18px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border); }
         .comment-input-area { display: flex; gap: 12px; margin-top: 20px; }
         textarea { flex-grow: 1; background: #090d16; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; resize: vertical; min-height: 70px; outline: none; }
         textarea:focus { border-color: var(--accent); }
+
+        /* Profile Modal Styling */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal-card { background: var(--card-bg); width: 100%; max-width: 600px; border-radius: 16px; border: 1px solid var(--border); padding: 30px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .modal-avatar { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; }
+        .user-script-item { background: #090d16; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; transition: 0.2s; }
+        .user-script-item:hover { border-color: var(--accent); }
     </style>
 </head>
 <body>
@@ -36,9 +48,17 @@
         </div>
     </div>
 
+    <!-- User Profile Modal -->
+    <div class="modal-overlay" id="profile-modal" onclick="closeProfileModal(event)">
+        <div class="modal-card" id="modal-card-content">
+            <!-- Dynamically populated profile content -->
+        </div>
+    </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const scriptId = urlParams.get('id');
+        let currentScriptData = null;
 
         async function loadScriptDetails() {
             if (!scriptId) {
@@ -53,6 +73,7 @@
                     return;
                 }
                 const script = await res.json();
+                currentScriptData = script;
 
                 const container = document.getElementById('script-content-area');
                 container.innerHTML = `
@@ -65,6 +86,7 @@
                                 <span>Category: <strong>${script.category}</strong></span>
                                 <span>Views: <strong>${script.views || 0}</strong></span>
                                 <span>Likes: <strong id="like-count">${(script.likes || []).length}</strong></span>
+                                <span>by <a class="author-link" onclick="openProfile('${script.authorId || script.author?.id}')">${script.author?.username || 'Community'}</a></span>
                             </div>
                             <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
                                 <button onclick="likeScript()" class="btn" style="background: #ef4444; color: white;">❤️ Like Script</button>
@@ -87,7 +109,7 @@
                             ${(script.comments || []).length === 0 ? '<p style="color: var(--muted);">No comments yet. Be the first!</p>' : ''}
                             ${(script.comments || []).map(c => `
                                 <div class="comment-box">
-                                    <strong style="color: var(--accent);">${c.author?.username || c.username || 'User'}</strong>
+                                    <strong class="author-link" onclick="openProfile('${c.author?.id || c.userId}')">${c.author?.username || c.username || 'User'}</strong>
                                     <p style="margin: 6px 0 0 0; color: #cbd5e1; font-size: 14px;">${escapeHtml(c.text)}</p>
                                 </div>
                             `).join('')}
@@ -102,6 +124,56 @@
             } catch (err) {
                 console.error(err);
                 document.getElementById('script-content-area').innerHTML = '<p style="color: #ef4444;">Error loading script data.</p>';
+            }
+        }
+
+        async function openProfile(userId) {
+            if (!userId) return;
+            try {
+                const res = await fetch(`/api/users/${userId}`);
+                if (!res.ok) {
+                    alert('User profile not found.');
+                    return;
+                }
+                const data = await res.json();
+                const user = data.user;
+                const scripts = data.scripts || [];
+
+                const modalContent = document.getElementById('modal-card-content');
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        <img src="${user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="modal-avatar" alt="Avatar">
+                        <div>
+                            <h2 style="margin: 0 0 4px 0; color: var(--text);">${user.username}</h2>
+                            <p style="margin: 0; color: var(--muted); font-size: 13px;">Points: ${user.points || 0} | Role: ${user.isAdmin ? 'Administrator' : 'Scripter'}</p>
+                        </div>
+                    </div>
+                    <p style="color: #cbd5e1; margin-bottom: 20px; font-style: italic;">"${user.bio || 'No bio provided.'}"</p>
+                    <h3 style="font-size: 16px; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">Published Scripts (${scripts.length})</h3>
+                    <div style="max-height: 250px; overflow-y: auto;">
+                        ${scripts.length === 0 ? '<p style="color: var(--muted); font-size: 13px;">No scripts published yet.</p>' : 
+                            scripts.map(s => `
+                                <a href="/page.html?id=${s.id}" class="user-script-item">
+                                    <span style="font-weight: 600; font-size: 14px;">${s.title}</span>
+                                    <span style="font-size: 12px; color: var(--muted);">Views: ${s.views || 0}</span>
+                                </a>
+                            `).join('')}
+                    </div>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button onclick="document.getElementById('profile-modal').style.display='none'" class="btn" style="padding: 6px 14px; font-size: 13px; background: #334155; color: white;">Close</button>
+                    </div>
+                `;
+
+                document.getElementById('profile-modal').style.display = 'flex';
+            } catch (err) {
+                console.error('Error fetching profile:', err);
+                alert('Could not load user profile.');
+            }
+        }
+
+        function closeProfileModal(e) {
+            if (e.target.id === 'profile-modal') {
+                document.getElementById('profile-modal').style.display = 'none';
             }
         }
 
