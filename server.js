@@ -5,13 +5,14 @@ const DiscordStrategy = require('passport-discord').Strategy;
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1566401329134436445';
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YXsJbWZep1P6AYzO8RKfvDD6p5alV3vC';
-const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptforexenet.vercel.app/auth/discord/callback';
+const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptsforexenet.vercel.app/auth/discord/callback';
 const ADMIN_DISCORD_ID = '1287363175158644757';
 
 app.use(express.json());
@@ -172,14 +173,8 @@ app.get('/api/stats', (req, res) => {
     });
 });
 
-const uploadDir = path.join(__dirname, 'public', 'uploads');
-try {
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-} catch {
-    // Read-only filesystem handling for serverless
-}
-
-const upload = multer({ dest: uploadDir });
+// Use Vercel's writable temporary directory for multer uploads
+const upload = multer({ dest: os.tmpdir() });
 
 app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
