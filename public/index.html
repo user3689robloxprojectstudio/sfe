@@ -8,20 +8,19 @@
         :root { --bg: #0b0f19; --card-bg: #131d31; --accent: #38bdf8; --text: #f8fafc; --muted: #94a3b8; --border: #1e293b; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* Header & Navbar */
         header { background: rgba(19, 29, 49, 0.9); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .logo { font-size: 20px; font-weight: 800; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
         .nav-right { display: flex; gap: 14px; align-items: center; }
         
-        /* Buttons */
-        .btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s ease; font-size: 14px; }
-        .btn:hover { background: #e2e8f0; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+        .btn { background: var(--text); color: var(--bg); padding: 8px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s ease; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { background: #e2e8f0; transform: translateY(-1px); }
         .btn-accent { background: var(--accent); color: var(--bg); }
         .btn-accent:hover { background: #0ea5e9; }
         .btn-discord { background: #5865F2; color: white; }
         .btn-discord:hover { background: #4752C4; }
+        .btn-admin { background: #ef4444; color: white; }
+        .btn-admin:hover { background: #dc2626; }
 
-        /* Sidebar Toggle & Drawer */
         .menu-toggle { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .menu-toggle:hover { border-color: var(--accent); }
 
@@ -36,7 +35,6 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 150; display: none; }
         .overlay.active { display: block; }
 
-        /* Hero with Typing Effect */
         .hero { text-align: center; padding: 80px 20px 50px; background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 75%); }
         .hero h1 { font-size: 44px; margin-bottom: 12px; font-weight: 800; letter-spacing: -1px; }
         .typing-container { color: var(--accent); border-right: 3px solid var(--accent); white-space: nowrap; animation: blink 0.75s step-end infinite; }
@@ -47,7 +45,6 @@
         .search-bar { max-width: 480px; margin: 0 auto; display: flex; background: var(--card-bg); border: 1px solid #334155; border-radius: 12px; padding: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         .search-bar input { flex-grow: 1; background: transparent; border: none; color: white; padding: 10px 15px; font-size: 15px; outline: none; }
 
-        /* Grid Layout */
         .container { max-width: 1240px; margin: 0 auto; padding: 40px 20px; }
         .section-header { margin-bottom: 25px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
         .section-title { font-size: 20px; font-weight: 700; color: var(--text); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -66,24 +63,22 @@
 </head>
 <body>
 
-    <!-- Sidebar Navigation Drawer -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <span style="font-weight: 700; color: var(--accent);">Navigation</span>
             <button class="sidebar-close" onclick="toggleSidebar()">×</button>
         </div>
-        <div class="sidebar-nav">
+        <div class="sidebar-nav" id="sidebar-links">
             <a href="/">Home Index</a>
             <a href="/upload.html">Upload Script</a>
             <a href="/settings.html">Account Settings</a>
         </div>
     </div>
 
-    <!-- Main Header -->
     <header>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+            <button class="menu-toggle" onclick="toggleSidebar()">Menu</button>
             <a href="/" class="logo">ScriptForExe.net</a>
         </div>
         <div class="nav-right" id="auth-nav">
@@ -92,7 +87,6 @@
         </div>
     </header>
 
-    <!-- Hero Section with Typing Animation -->
     <div class="hero">
         <h1>Next-Gen <span class="typing-container" id="typed-text"></span></h1>
         <p>Explore, download, and publish verified community Roblox scripts instantly.</p>
@@ -101,7 +95,6 @@
         </div>
     </div>
 
-    <!-- Script Grid Container -->
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Newest Scripts</h2>
@@ -112,16 +105,13 @@
     </div>
 
     <script>
-        // Sidebar Toggle Handler
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        // Typing Effect Logic
         const words = ["Roblox Script Index", "Execution Hub", "Scripter Community"];
         let i = 0;
-        let timer;
 
         function typingEffect() {
             let word = words[i].split("");
@@ -132,7 +122,7 @@
                     setTimeout(deletingEffect, 2000);
                     return;
                 }
-                timer = setTimeout(loopTyping, 100);
+                setTimeout(loopTyping, 100);
             };
             loopTyping();
         }
@@ -148,13 +138,12 @@
                     setTimeout(typingEffect, 500);
                     return;
                 }
-                timer = setTimeout(loopDeleting, 50);
+                setTimeout(loopDeleting, 50);
             };
             loopDeleting();
         }
         typingEffect();
 
-        // Load Scripts & Auth State
         let allScripts = [];
 
         async function loadData() {
@@ -162,14 +151,25 @@
                 const meRes = await fetch('/api/me');
                 const meData = await meRes.json();
                 const authNav = document.getElementById('auth-nav');
+                const sidebarNav = document.getElementById('sidebar-links');
 
                 if (meData.authenticated) {
+                    const isAdmin = meData.user.isAdmin || meData.user.id === '1287363175158644757';
+                    
                     authNav.innerHTML = `
                         <a href="/upload.html" class="btn btn-accent">Upload Script</a>
                         <a href="/settings.html" class="btn" style="background: var(--text); color: var(--bg); display: flex; align-items: center; gap: 8px;">
                             <img src="${meData.user.avatar}" style="width: 20px; height: 20px; border-radius: 50%;"> Settings
                         </a>
+                        ${isAdmin ? `<a href="/admin.html" class="btn btn-admin">Admin Dashboard</a>` : ''}
                         <a href="/logout" class="btn" style="background: #ef4444; color: white;">Logout</a>
+                    `;
+
+                    sidebarNav.innerHTML = `
+                        <a href="/">Home Index</a>
+                        <a href="/upload.html">Upload Script</a>
+                        <a href="/settings.html">Account Settings</a>
+                        ${isAdmin ? `<a href="/admin.html" style="color: #ef4444; font-weight: bold;">Admin Dashboard</a>` : ''}
                     `;
                 }
 
