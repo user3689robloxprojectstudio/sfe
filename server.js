@@ -15,6 +15,10 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YXsJbWZep1P6
 const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptsforexenet.vercel.app/auth/discord/callback';
 const ADMIN_DISCORD_ID = '1287363175158644757';
 
+// JSONBin Credentials for permanent cloud storage on Vercel
+const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY || '';
+const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID || '';
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,70 +34,132 @@ app.use(passport.session());
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
-    let users = getUsersCache();
-    done(null, users[id] || { id });
+    getUsersCache().then(users => {
+        done(null, users[id] || { id });
+    }).catch(() => done(null, { id }));
 });
 
 const activeVisitors = new Map();
 
-// In-memory fallbacks for Vercel read-only filesystem
+// In-memory fallback if cloud fetch fails temporarily
 let memoryCloudCache = [];
 let memoryUsersCache = {};
 
-function getCloudCache() {
-    try {
-        if (fs.existsSync('cloud_cache.json')) {
-            return JSON.parse(fs.readFileSync('cloud_cache.json', 'utf8'));
-        }
-    } catch {
-        // Fallback to memory if read fails
+// Cloud storage helpers using JSONBin.io (or local fallback)
+async function getCloudData() {
+    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+        // Fallback to local files if JSONBin isn't configured yet
+        try {
+            if (fs.existsSync('cloud_cache.json')) {
+                return JSON.parse(fs.readFileSync('cloud_cache.json', 'utf8'));
+            }
+        } catch {}
+        return memoryCloudCache;
     }
-    return memoryCloudCache;
-}
 
-function saveCloudCache(data) {
-    memoryCloudCache = data;
     try {
-        fs.writeFileSync('cloud_cache.json', JSON.stringify(data, null, 2));
-    } catch {
-        // Suppress write errors on read-only environments like Vercel
-    }
-}
-
-function getUsersCache() {
-    try {
-        if (fs.existsSync('users_cache.json')) {
-            return JSON.parse(fs.readFileSync('users_cache.json', 'utf8'));
-        }
-    } catch {
-        // Fallback to memory if read fails
-    }
-    return memoryUsersCache;
-}
-
-function saveUsersCache(data) {
-    memoryUsersCache = data;
-    try {
-        fs.writeFileSync('users_cache.json', JSON.stringify(data, null, 2));
-    } catch {
-        // Suppress write errors on read-only environments like Vercel
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const data = await response.json();
+        return data.record?.scripts || memoryCloudCache;
+    } catch (err) {
+        console.error('Error fetching cloud cache:', err);
+        return memoryCloudCache;
     }
 }
 
-function addNotification(userId, message) {
-    let users = getUsersCache();
+async function saveCloudData(scripts) {
+    memoryCloudCache = scripts;
+    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+        try { fs.writeFileSync('cloud_cache.json', JSON.stringify(scripts, null, 2)); } catch {}
+        return;
+    }
+
+    try {
+        // Fetch current full record to preserve users as well
+        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const currentData = await getRes.json();
+        const users = currentData.record?.users || memoryUsersCache;
+
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY
+            },
+            body: JSON.stringify({ scripts, users })
+        });
+    } catch (err) {
+        console.error('Error saving cloud cache:', err);
+    }
+}
+
+async function getUsersCache() {
+    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+        try {
+            if (fs.existsSync('users_cache.json')) {
+                return JSON.parse(fs.readFileSync('users_cache.json', 'utf8'));
+            }
+        } catch {}
+        return memoryUsersCache;
+    }
+
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const data = await response.json();
+        return data.record?.users || memoryUsersCache;
+    } catch (err) {
+        console.error('Error fetching users cache:', err);
+        return memoryUsersCache;
+    }
+}
+
+async function saveUsersCache(users) {
+    memoryUsersCache = users;
+    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
+        try { fs.writeFileSync('users_cache.json', JSON.stringify(users, null, 2)); } catch {}
+        return;
+    }
+
+    try {
+        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        const currentData = await getRes.json();
+        const scripts = currentData.record?.scripts || memoryCloudCache;
+
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY
+            },
+            body: JSON.stringify({ scripts, users })
+        });
+    } catch (err) {
+        console.error('Error saving users cache:', err);
+    }
+}
+
+async function addNotification(userId, message) {
+    let users = await getUsersCache();
     if (users[userId]) {
         if (!users[userId].notifications) users[userId].notifications = [];
         users[userId].notifications.unshift({ id: Date.now().toString(), message, createdAt: new Date().toISOString() });
-        saveUsersCache(users);
+        await saveUsersCache(users);
     }
 }
 
-function addPoints(userId, amount) {
-    let users = getUsersCache();
+async function addPoints(userId, amount) {
+    let users = await getUsersCache();
     if (users[userId]) {
         users[userId].points = Math.min(50, (users[userId].points || 0) + amount);
-        saveUsersCache(users);
+        await saveUsersCache(users);
     }
 }
 
@@ -112,8 +178,8 @@ passport.use(new DiscordStrategy({
     clientSecret: DISCORD_CLIENT_SECRET,
     callbackURL: CALLBACK_URL,
     scope: ['identify']
-}, (accessToken, refreshToken, profile, done) => {
-    let users = getUsersCache();
+}, async (accessToken, refreshToken, profile, done) => {
+    let users = await getUsersCache();
     let userAvatar = profile.avatar 
         ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${profile.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
         : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(profile.id) >> 22n) % 6n)}.png`;
@@ -141,7 +207,7 @@ passport.use(new DiscordStrategy({
         users[profile.id].isAdmin = isAdmin;
     }
 
-    saveUsersCache(users);
+    await saveUsersCache(users);
     return done(null, users[profile.id]);
 }));
 
@@ -149,9 +215,9 @@ app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
 app.get('/logout', (req, res) => { req.logout(() => res.redirect('/')); });
 
-app.get('/api/me', (req, res) => {
+app.get('/api/me', async (req, res) => {
     if (!req.isAuthenticated()) return res.json({ authenticated: false });
-    const users = getUsersCache();
+    const users = await getUsersCache();
     const user = users[req.user.id] || req.user;
     if (user.banned) { req.logout(() => res.json({ authenticated: false })); return; }
     res.json({ authenticated: true, user });
@@ -162,9 +228,9 @@ app.get('/api/admin/check', (req, res) => {
     res.json({ admin: true });
 });
 
-app.get('/api/stats', (req, res) => {
-    const users = getUsersCache();
-    const scripts = getCloudCache();
+app.get('/api/stats', async (req, res) => {
+    const users = await getUsersCache();
+    const scripts = await getCloudData();
     res.json({
         onlineNow: activeVisitors.size,
         totalRegistered: Object.keys(users).length,
@@ -173,12 +239,11 @@ app.get('/api/stats', (req, res) => {
     });
 });
 
-// Use Vercel's writable temporary directory for multer uploads
 const upload = multer({ dest: os.tmpdir() });
 
-app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), (req, res) => {
+app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    const users = getUsersCache();
+    const users = await getUsersCache();
     if (users[req.user.id] && users[req.user.id].banned) return res.status(403).json({ error: 'Banned' });
 
     const { title, description, category, gameLink, hasKeySystem, code: bodyCode } = req.body;
@@ -192,7 +257,7 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
     const imageFile = req.files && req.files['image'] ? req.files['image'][0] : null;
     const imageUrl = imageFile ? `/uploads/${imageFile.filename}` : (req.body.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600');
 
-    const cache = getCloudCache();
+    const cache = await getCloudData();
     const newScript = {
         id: Date.now().toString(),
         title: title || 'Untitled',
@@ -212,17 +277,17 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
     };
 
     cache.unshift(newScript);
-    saveCloudCache(cache);
-    addPoints(req.user.id, 15);
-    addNotification(req.user.id, `🎉 You earned 15 points for publishing "${newScript.title}"!`);
+    await saveCloudData(cache);
+    await addPoints(req.user.id, 15);
+    await addNotification(req.user.id, `🎉 You earned 15 points for publishing "${newScript.title}"!`);
 
     res.json({ success: true, id: newScript.id, scriptId: newScript.id });
 });
 
-app.get('/api/scripts', (req, res) => res.json(getCloudCache()));
+app.get('/api/scripts', async (req, res) => res.json(await getCloudData()));
 
-app.get('/api/scripts/:id', (req, res) => {
-    const cache = getCloudCache();
+app.get('/api/scripts/:id', async (req, res) => {
+    const cache = await getCloudData();
     const script = cache.find(s => s.id === req.params.id);
     if (!script) return res.status(404).json({ error: 'Not found' });
 
@@ -230,15 +295,38 @@ app.get('/api/scripts/:id', (req, res) => {
     if (!req.session.viewedScripts.includes(script.id)) {
         req.session.viewedScripts.push(script.id);
         script.views = (script.views || 0) + 1;
-        saveCloudCache(cache);
+        await saveCloudData(cache);
     }
 
     res.json(script);
 });
 
-app.post('/api/scripts/:id/like', (req, res) => {
+app.delete('/api/scripts/:id', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    const cache = getCloudCache();
+
+    let cache = await getCloudData();
+    const scriptIndex = cache.findIndex(s => s.id === req.params.id);
+    
+    if (scriptIndex === -1) return res.status(404).json({ error: 'Post not found' });
+
+    const script = cache[scriptIndex];
+    const isOwner = script.authorId === req.user.id || script.author?.id === req.user.id;
+    const users = await getUsersCache();
+    const isAdmin = users[req.user.id]?.isAdmin || req.user.id === ADMIN_DISCORD_ID;
+
+    if (!isOwner && !isAdmin) {
+        return res.status(403).json({ error: 'Forbidden: You can only delete your own posts' });
+    }
+
+    cache.splice(scriptIndex, 1);
+    await saveCloudData(cache);
+
+    res.json({ success: true, message: 'Post deleted successfully' });
+});
+
+app.post('/api/scripts/:id/like', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
+    const cache = await getCloudData();
     const script = cache.find(s => s.id === req.params.id);
     if (!script) return res.status(404).json({ error: 'Not found' });
 
@@ -248,27 +336,27 @@ app.post('/api/scripts/:id/like', (req, res) => {
         script.likes.splice(idx, 1);
     } else {
         script.likes.push(req.user.id);
-        addPoints(req.user.id, 5);
+        await addPoints(req.user.id, 5);
         if (script.authorId) {
-            addPoints(script.authorId, 10);
-            addNotification(script.authorId, `❤️ Someone liked your script "${script.title}"!`);
+            await addPoints(script.authorId, 10);
+            await addNotification(script.authorId, `❤️ Someone liked your script "${script.title}"!`);
         }
     }
 
-    saveCloudCache(cache);
+    await saveCloudData(cache);
     res.json({ success: true, likes: script.likes.length, ...script });
 });
 
-app.post('/api/scripts/:id/comment', (req, res) => {
+app.post('/api/scripts/:id/comment', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
     const { text } = req.body;
     if (!text || !text.trim()) return res.status(400).json({ error: 'Empty' });
-    const cache = getCloudCache();
+    const cache = await getCloudData();
     const script = cache.find(s => s.id === req.params.id);
     if (!script) return res.status(404).json({ error: 'Not found' });
 
     if (!script.comments) script.comments = [];
-    const users = getUsersCache();
+    const users = await getUsersCache();
     const currentUser = users[req.user.id] || req.user;
 
     script.comments.push({ 
@@ -284,35 +372,35 @@ app.post('/api/scripts/:id/comment', (req, res) => {
         createdAt: new Date().toISOString()
     });
     
-    saveCloudCache(cache);
-    addPoints(req.user.id, 5);
+    await saveCloudData(cache);
+    await addPoints(req.user.id, 5);
     res.json({ success: true, comments: script.comments, ...script });
 });
 
-const handleUserProfileLookup = (req, res) => {
-    const users = getUsersCache();
+const handleUserProfileLookup = async (req, res) => {
+    const users = await getUsersCache();
     const userId = req.params.id;
     let user = users[userId] || Object.values(users).find(u => u.id == userId || u.username === userId);
     
     if (!user) {
-        const cache = getCloudCache();
+        const cache = await getCloudData();
         const foundScript = cache.find(s => s.author && (s.author.id == userId || s.author.username === userId));
         if (foundScript) user = foundScript.author;
     }
 
     if (!user) return res.status(404).json({ error: 'User not found' });
-    const cache = getCloudCache();
+    const cache = await getCloudData();
     res.json({ user, scripts: cache.filter(s => s.authorId === user.id || s.author?.id === user.id) });
 };
 
 app.get('/api/users/:id', handleUserProfileLookup);
 app.get('/api/user/:id', handleUserProfileLookup);
 
-app.get('/api/admin/users', (req, res) => {
+app.get('/api/admin/users', async (req, res) => {
     if (!req.isAuthenticated() || req.user.id !== ADMIN_DISCORD_ID) {
         return res.status(403).json({ error: 'Unauthorized' });
     }
-    const users = getUsersCache();
+    const users = await getUsersCache();
     const userList = Object.values(users).map(u => ({
         id: u.id,
         username: u.username || 'Unknown',
@@ -323,8 +411,8 @@ app.get('/api/admin/users', (req, res) => {
     res.json(userList);
 });
 
-app.get('/api/leaderboard', (req, res) => {
-    const users = getUsersCache();
+app.get('/api/leaderboard', async (req, res) => {
+    const users = await getUsersCache();
     const list = Object.values(users).map(u => ({
         id: u.id,
         username: u.username,
@@ -335,18 +423,16 @@ app.get('/api/leaderboard', (req, res) => {
     res.json(list);
 });
 
-app.post('/api/users/bio', (req, res) => {
+app.post('/api/users/bio', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
     const { bio } = req.body;
-    const users = getUsersCache();
-    if (users[req.user.id]) { users[req.user.id].bio = bio; saveUsersCache(users); }
+    const users = await getUsersCache();
+    if (users[req.user.id]) { users[req.user.id].bio = bio; await saveUsersCache(users); }
     res.json({ success: true });
 });
 
-// For local testing vs Vercel deployment
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`ScriptsForExe.gg running locally on port ${PORT}`));
 }
 
-// Export app for Vercel serverless environment
 module.exports = app;
