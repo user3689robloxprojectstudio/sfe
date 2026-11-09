@@ -15,7 +15,6 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YXsJbWZep1P6
 const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptsforexenet.vercel.app/auth/discord/callback';
 const ADMIN_DISCORD_ID = '1287363175158644757';
 
-// JSONBin Credentials for permanent cloud storage on Vercel
 const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY || '';
 const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID || '';
 
@@ -40,15 +39,11 @@ passport.deserializeUser((id, done) => {
 });
 
 const activeVisitors = new Map();
-
-// In-memory fallback if cloud fetch fails temporarily
 let memoryCloudCache = [];
 let memoryUsersCache = {};
 
-// Cloud storage helpers using JSONBin.io (or local fallback)
 async function getCloudData() {
     if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-        // Fallback to local files if JSONBin isn't configured yet
         try {
             if (fs.existsSync('cloud_cache.json')) {
                 return JSON.parse(fs.readFileSync('cloud_cache.json', 'utf8'));
@@ -56,15 +51,13 @@ async function getCloudData() {
         } catch {}
         return memoryCloudCache;
     }
-
     try {
         const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
         const data = await response.json();
         return data.record?.scripts || memoryCloudCache;
-    } catch (err) {
-        console.error('Error fetching cloud cache:', err);
+    } catch {
         return memoryCloudCache;
     }
 }
@@ -75,9 +68,7 @@ async function saveCloudData(scripts) {
         try { fs.writeFileSync('cloud_cache.json', JSON.stringify(scripts, null, 2)); } catch {}
         return;
     }
-
     try {
-        // Fetch current full record to preserve users as well
         const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
@@ -86,15 +77,10 @@ async function saveCloudData(scripts) {
 
         await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
             body: JSON.stringify({ scripts, users })
         });
-    } catch (err) {
-        console.error('Error saving cloud cache:', err);
-    }
+    } catch {}
 }
 
 async function getUsersCache() {
@@ -106,15 +92,13 @@ async function getUsersCache() {
         } catch {}
         return memoryUsersCache;
     }
-
     try {
         const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
         const data = await response.json();
         return data.record?.users || memoryUsersCache;
-    } catch (err) {
-        console.error('Error fetching users cache:', err);
+    } catch {
         return memoryUsersCache;
     }
 }
@@ -125,7 +109,6 @@ async function saveUsersCache(users) {
         try { fs.writeFileSync('users_cache.json', JSON.stringify(users, null, 2)); } catch {}
         return;
     }
-
     try {
         const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
             headers: { 'X-Master-Key': JSONBIN_API_KEY }
@@ -135,15 +118,10 @@ async function saveUsersCache(users) {
 
         await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
             body: JSON.stringify({ scripts, users })
         });
-    } catch (err) {
-        console.error('Error saving users cache:', err);
-    }
+    } catch {}
 }
 
 async function addNotification(userId, message) {
@@ -192,7 +170,7 @@ passport.use(new DiscordStrategy({
             id: profile.id,
             username: realUsername,
             avatar: userAvatar,
-            bio: 'Roblox scripter on ScriptsForExe.gg.',
+            bio: 'Roblox scripter on ScriptForExe.net.',
             followers: [],
             following: [],
             points: 10,
@@ -223,11 +201,6 @@ app.get('/api/me', async (req, res) => {
     res.json({ authenticated: true, user });
 });
 
-app.get('/api/admin/check', (req, res) => {
-    if (!req.isAuthenticated() || req.user.id !== ADMIN_DISCORD_ID) return res.json({ admin: false });
-    res.json({ admin: true });
-});
-
 app.get('/api/stats', async (req, res) => {
     const users = await getUsersCache();
     const scripts = await getCloudData();
@@ -254,8 +227,15 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         try { scriptContent = fs.readFileSync(scriptFile.path, 'utf8'); } catch { scriptContent = '-- Error reading file'; }
     }
 
+    // Convert uploaded image to Base64 to prevent Vercel 404 broken image errors
+    let imageUrl = req.body.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600';
     const imageFile = req.files && req.files['image'] ? req.files['image'][0] : null;
-    const imageUrl = imageFile ? `/uploads/${imageFile.filename}` : (req.body.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600');
+    if (imageFile) {
+        try {
+            const bitmap = fs.readFileSync(imageFile.path);
+            imageUrl = `data:${imageFile.mimetype};base64,${bitmap.toString('base64')}`;
+        } catch {}
+    }
 
     const cache = await getCloudData();
     const newScript = {
@@ -297,7 +277,6 @@ app.get('/api/scripts/:id', async (req, res) => {
         script.views = (script.views || 0) + 1;
         await saveCloudData(cache);
     }
-
     res.json(script);
 });
 
@@ -306,7 +285,6 @@ app.delete('/api/scripts/:id', async (req, res) => {
 
     let cache = await getCloudData();
     const scriptIndex = cache.findIndex(s => s.id === req.params.id);
-    
     if (scriptIndex === -1) return res.status(404).json({ error: 'Post not found' });
 
     const script = cache[scriptIndex];
@@ -314,14 +292,11 @@ app.delete('/api/scripts/:id', async (req, res) => {
     const users = await getUsersCache();
     const isAdmin = users[req.user.id]?.isAdmin || req.user.id === ADMIN_DISCORD_ID;
 
-    if (!isOwner && !isAdmin) {
-        return res.status(403).json({ error: 'Forbidden: You can only delete your own posts' });
-    }
+    if (!isOwner && !isAdmin) return res.status(403).json({ error: 'Forbidden' });
 
     cache.splice(scriptIndex, 1);
     await saveCloudData(cache);
-
-    res.json({ success: true, message: 'Post deleted successfully' });
+    res.json({ success: true, message: 'Deleted successfully' });
 });
 
 app.post('/api/scripts/:id/like', async (req, res) => {
@@ -337,12 +312,7 @@ app.post('/api/scripts/:id/like', async (req, res) => {
     } else {
         script.likes.push(req.user.id);
         await addPoints(req.user.id, 5);
-        if (script.authorId) {
-            await addPoints(script.authorId, 10);
-            await addNotification(script.authorId, `❤️ Someone liked your script "${script.title}"!`);
-        }
     }
-
     await saveCloudData(cache);
     res.json({ success: true, likes: script.likes.length, ...script });
 });
@@ -362,77 +332,27 @@ app.post('/api/scripts/:id/comment', async (req, res) => {
     script.comments.push({ 
         id: Date.now().toString(), 
         userId: req.user.id, 
-        author: {
-            id: req.user.id,
-            username: currentUser.username,
-            avatar: currentUser.avatar
-        },
+        author: { id: req.user.id, username: currentUser.username, avatar: currentUser.avatar },
         username: currentUser.username, 
         text: text.trim(),
         createdAt: new Date().toISOString()
     });
     
     await saveCloudData(cache);
-    await addPoints(req.user.id, 5);
     res.json({ success: true, comments: script.comments, ...script });
 });
 
-const handleUserProfileLookup = async (req, res) => {
+app.get('/api/users/:id', async (req, res) => {
     const users = await getUsersCache();
     const userId = req.params.id;
     let user = users[userId] || Object.values(users).find(u => u.id == userId || u.username === userId);
-    
-    if (!user) {
-        const cache = await getCloudData();
-        const foundScript = cache.find(s => s.author && (s.author.id == userId || s.author.username === userId));
-        if (foundScript) user = foundScript.author;
-    }
-
     if (!user) return res.status(404).json({ error: 'User not found' });
     const cache = await getCloudData();
     res.json({ user, scripts: cache.filter(s => s.authorId === user.id || s.author?.id === user.id) });
-};
-
-app.get('/api/users/:id', handleUserProfileLookup);
-app.get('/api/user/:id', handleUserProfileLookup);
-
-app.get('/api/admin/users', async (req, res) => {
-    if (!req.isAuthenticated() || req.user.id !== ADMIN_DISCORD_ID) {
-        return res.status(403).json({ error: 'Unauthorized' });
-    }
-    const users = await getUsersCache();
-    const userList = Object.values(users).map(u => ({
-        id: u.id,
-        username: u.username || 'Unknown',
-        avatar: u.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png',
-        isAdmin: u.isAdmin || u.id === ADMIN_DISCORD_ID,
-        joinedAt: u.joinedAt || 'N/A'
-    }));
-    res.json(userList);
-});
-
-app.get('/api/leaderboard', async (req, res) => {
-    const users = await getUsersCache();
-    const list = Object.values(users).map(u => ({
-        id: u.id,
-        username: u.username,
-        avatar: u.avatar,
-        points: u.points || 0,
-        verified: u.verified
-    })).sort((a, b) => b.points - a.points);
-    res.json(list);
-});
-
-app.post('/api/users/bio', async (req, res) => {
-    if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    const { bio } = req.body;
-    const users = await getUsersCache();
-    if (users[req.user.id]) { users[req.user.id].bio = bio; await saveUsersCache(users); }
-    res.json({ success: true });
 });
 
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => console.log(`ScriptsForExe.gg running locally on port ${PORT}`));
+    app.listen(PORT, () => console.log(`ScriptForExe.net running locally on port ${PORT}`));
 }
 
 module.exports = app;
