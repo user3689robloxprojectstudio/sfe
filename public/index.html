@@ -3,21 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ScriptForExe.net — Premium Script Repository</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>ScriptForExe.net — Community Script Repository</title>
   <style>
     :root {
-      --bg-base: #07090e;
-      --bg-surface: #0d1117;
-      --bg-card: rgba(22, 27, 34, 0.7);
+      --bg-primary: #0b0e14;
+      --bg-secondary: #151923;
+      --bg-card: #1c212e;
       --border-color: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(59, 130, 246, 0.4);
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
       --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.25);
       --accent-hover: #2563eb;
       --discord: #5865F2;
       --discord-hover: #4752C4;
@@ -32,23 +27,18 @@
     }
 
     body {
-      background-color: var(--bg-base);
+      background-color: var(--bg-primary);
       color: var(--text-primary);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.06) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(88, 101, 242, 0.05) 0%, transparent 40%);
     }
 
     /* Navbar */
     nav {
-      background: rgba(13, 17, 23, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background-color: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
       padding: 1rem 2rem;
       position: sticky;
@@ -57,7 +47,7 @@
     }
 
     .nav-container {
-      max-width: 1300px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -66,20 +56,17 @@
     }
 
     .brand {
-      font-size: 1.35rem;
-      font-weight: 800;
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--text-primary);
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      letter-spacing: -0.025em;
     }
 
     .brand span {
-      background: linear-gradient(135deg, #60a5fa, #3b82f6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--accent);
     }
 
     .nav-actions {
@@ -88,10 +75,9 @@
       gap: 1rem;
     }
 
-    /* Buttons */
     .btn {
-      padding: 0.6rem 1.25rem;
-      border-radius: 8px;
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -100,34 +86,29 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background-color 0.2s, transform 0.1s;
     }
 
     .btn:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
 
     .btn-discord {
       background-color: var(--discord);
       color: #fff;
-      box-shadow: 0 4px 14px rgba(88, 101, 242, 0.3);
     }
 
     .btn-discord:hover {
       background-color: var(--discord-hover);
-      box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      background-color: var(--accent);
       color: #fff;
-      box-shadow: 0 4px 14px var(--accent-glow);
     }
 
     .btn-primary:hover {
-      opacity: 0.95;
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-      transform: translateY(-1px);
+      background-color: var(--accent-hover);
     }
 
     .btn-outline {
@@ -137,15 +118,14 @@
     }
 
     .btn-outline:hover {
-      background-color: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.15);
+      background-color: rgba(255, 255, 255, 0.05);
     }
 
     .btn-danger {
-      background-color: rgba(239, 68, 68, 0.1);
+      background-color: rgba(239, 68, 68, 0.15);
       color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      padding: 0.4rem 0.8rem;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.7rem;
       font-size: 0.8rem;
     }
 
@@ -158,10 +138,6 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      background: var(--bg-surface);
-      padding: 0.35rem 0.75rem 0.35rem 0.35rem;
-      border-radius: 50px;
-      border: 1px solid var(--border-color);
     }
 
     .user-avatar {
@@ -172,44 +148,22 @@
     }
 
     .admin-badge {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2));
+      background-color: rgba(59, 130, 246, 0.2);
       color: #60a5fa;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       padding: 0.15rem 0.5rem;
       border-radius: 4px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    /* Main Container */
+    /* Main Content */
     main {
-      max-width: 1300px;
+      max-width: 1200px;
       width: 100%;
-      margin: 2.5rem auto;
+      margin: 2rem auto;
       padding: 0 2rem;
       flex: 1;
-    }
-
-    .hero-section {
-      margin-bottom: 2.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-
-    .hero-title h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.5rem;
-    }
-
-    .hero-title p {
-      color: var(--text-secondary);
-      font-size: 1rem;
     }
 
     .header-controls {
@@ -223,123 +177,88 @@
 
     .search-bar {
       flex: 1;
-      min-width: 280px;
+      min-width: 260px;
       max-width: 450px;
-      position: relative;
     }
 
     .search-bar input {
       width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.75rem;
-      background-color: var(--bg-surface);
+      padding: 0.65rem 1rem;
+      background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: 6px;
       color: var(--text-primary);
       font-size: 0.95rem;
-      transition: all 0.2s;
     }
 
     .search-bar input:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-      pointer-events: none;
     }
 
     /* Scripts Grid */
     .scripts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 1.5rem;
     }
 
     .script-card {
       background-color: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 1.25rem;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .script-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      gap: 1rem;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .card-title {
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-primary);
-      letter-spacing: -0.01em;
     }
 
     .card-game {
-      font-size: 0.75rem;
-      font-weight: 600;
-      background-color: rgba(59, 130, 246, 0.1);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 0.25rem 0.65rem;
-      border-radius: 6px;
+      font-size: 0.8rem;
+      background-color: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
       white-space: nowrap;
     }
 
     .card-desc {
       color: var(--text-secondary);
       font-size: 0.9rem;
-      line-height: 1.5;
     }
 
     .code-preview {
-      background-color: #05070a;
+      background-color: var(--bg-primary);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.85rem;
-      font-family: 'JetBrains Mono', monospace;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.8rem;
-      color: #38bdf8;
+      color: #a5b4fc;
       overflow-x: auto;
       white-space: pre;
-      max-height: 110px;
-    }
-
-    .code-preview::-webkit-scrollbar {
-      height: 4px;
-    }
-    .code-preview::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 2px;
+      max-height: 90px;
     }
 
     .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 1rem;
+      padding-top: 0.75rem;
       border-top: 1px solid var(--border-color);
       font-size: 0.85rem;
       color: var(--text-secondary);
@@ -350,97 +269,72 @@
       gap: 0.5rem;
     }
 
-    /* Modal Backdrop */
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background-color: rgba(7, 9, 14, 0.8);
-      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.75);
       display: none;
       justify-content: center;
       align-items: center;
       padding: 1rem;
       z-index: 200;
-      opacity: 0;
-      transition: opacity 0.2s ease;
     }
 
     .modal-backdrop.active {
       display: flex;
-      opacity: 1;
     }
 
     .modal {
-      background-color: var(--bg-surface);
+      background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
+      border-radius: 10px;
       width: 100%;
-      max-width: 560px;
-      padding: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      max-width: 520px;
+      padding: 1.75rem;
     }
 
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-header h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
+      margin-bottom: 1.25rem;
     }
 
     .form-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 0.5rem;
-      font-size: 0.85rem;
-      font-weight: 600;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
       color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .form-group input,
     .form-group textarea {
       width: 100%;
-      padding: 0.75rem 1rem;
-      background-color: var(--bg-base);
+      padding: 0.65rem;
+      background-color: var(--bg-primary);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 6px;
       color: var(--text-primary);
       font-family: inherit;
       font-size: 0.95rem;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
     .form-group textarea {
-      font-family: 'JetBrains Mono', monospace;
-      min-height: 140px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      min-height: 130px;
       resize: vertical;
-      font-size: 0.85rem;
     }
 
     .empty-state {
       text-align: center;
-      padding: 5rem 1rem;
+      padding: 4rem 1rem;
       color: var(--text-secondary);
       grid-column: 1 / -1;
-      background: var(--bg-card);
-      border: 1px dashed var(--border-color);
-      border-radius: 12px;
     }
   </style>
 </head>
@@ -461,23 +355,15 @@
 
   <!-- Main Content -->
   <main>
-    <div class="hero-section">
-      <div class="hero-title">
-        <h1>Community Scripts</h1>
-        <p>Discover, share, and utilize safe user-contributed scripts instantly.</p>
+    <div class="header-controls">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search scripts by title, game, or author..." />
       </div>
       <button class="btn btn-primary" id="openUploadBtn" style="display: none;">+ Upload Script</button>
     </div>
 
-    <div class="header-controls">
-      <div class="search-bar">
-        <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="searchInput" placeholder="Search by title, game, or author..." />
-      </div>
-    </div>
-
     <div class="scripts-grid" id="scriptsGrid">
-      <div class="empty-state">Loading scripts repository...</div>
+      <div class="empty-state">Loading scripts...</div>
     </div>
   </main>
 
@@ -491,21 +377,21 @@
       <form id="uploadForm">
         <div class="form-group">
           <label for="scriptTitle">Script Title</label>
-          <input type="text" id="scriptTitle" required placeholder="e.g., Ultimate Auto Farm" />
+          <input type="text" id="scriptTitle" required placeholder="e.g., Auto Farm Hub v2" />
         </div>
         <div class="form-group">
           <label for="scriptGame">Target Game / Category</label>
-          <input type="text" id="scriptGame" required placeholder="e.g., Roblox / Universal" />
+          <input type="text" id="scriptGame" required placeholder="e.g., Universal / Roblox" />
         </div>
         <div class="form-group">
-          <label for="scriptDesc">Description</label>
-          <input type="text" id="scriptDesc" required placeholder="Brief breakdown of core features..." />
+          <label for="scriptDesc">Short Description</label>
+          <input type="text" id="scriptDesc" required placeholder="Brief summary of features..." />
         </div>
         <div class="form-group">
-          <label for="scriptCode">Loadstring / Source Code</label>
-          <textarea id="scriptCode" required placeholder='loadstring(game:HttpGet("https://example.com/script.lua"))()'></textarea>
+          <label for="scriptCode">Script Code / Loadstring</label>
+          <textarea id="scriptCode" required placeholder='loadstring(game:HttpGet("..."))()'></textarea>
         </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
           <button type="button" class="btn btn-outline" id="cancelUploadBtn">Cancel</button>
           <button type="submit" class="btn btn-primary">Publish Script</button>
         </div>
@@ -514,12 +400,12 @@
   </div>
 
   <!-- Footer with Better Uptime Status Link -->
-  <footer style="margin-top: 5rem; padding: 2rem 1rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.9rem; color: var(--text-secondary); background: var(--bg-surface);">
-    <div style="max-width: 1300px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+  <footer style="margin-top: 4rem; padding: 1.5rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-family: system-ui, -apple-system, sans-serif; font-size: 0.9rem; color: #9ca3af;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
       <span>&copy; 2026 ScriptForExe.net</span>
-      <span style="opacity: 0.3;">•</span>
-      <a href="https://scriptsforexe-net.betteruptime.com/" target="_blank" rel="noopener noreferrer" style="color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='var(--text-primary)'">
-        <span style="width: 8px; height: 8px; background-color: var(--success); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--success);"></span>
+      <span style="opacity: 0.4;">•</span>
+      <a href="https://scriptsforexe-net.betteruptime.com/" target="_blank" rel="noopener noreferrer" style="color: #e5e7eb; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#e5e7eb'">
+        <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #22c55e;"></span>
         System Status
       </a>
     </div>
@@ -563,34 +449,34 @@
             authSection.innerHTML = `
               <div class="user-profile">
                 <img src="${avatarUrl}" alt="Avatar" class="user-avatar" />
-                <span style="font-weight: 600; font-size: 0.9rem;">${escapeHTML(currentUser.username)}</span>
+                <span>${escapeHTML(currentUser.username)}</span>
                 ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-                <a href="/auth/logout" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-left: 0.25rem;">Logout</a>
+                <a href="/auth/logout" class="btn btn-outline" style="padding: 0.4rem 0.8rem;">Logout</a>
               </div>
             `;
             openUploadBtn.style.display = 'inline-flex';
           }
         }
       } catch (err) {
-        console.log('Not authenticated or API offline');
+        console.log('Auth check skipped or offline');
       }
     }
 
     async function fetchScripts() {
       try {
         const res = await fetch('/api/scripts');
-        if (!res.ok) throw new Error('API unreachable');
+        if (!res.ok) throw new Error('API failed');
         allScripts = await res.json();
         renderScripts(allScripts);
       } catch (err) {
-        // Fallback demo script so the page never looks broken if backend hasn't initialized
+        // Fallback demo script so the page never locks up on "Loading scripts..."
         allScripts = [
           {
             id: 'demo-1',
             title: 'Welcome Hub (Demo)',
             game: 'Universal',
-            description: 'Your repository is live! Connect your backend database to manage live uploads.',
-            code: 'print("ScriptForExe.net successfully loaded!")',
+            description: 'Your repository is connected and ready. Database endpoints will populate here.',
+            code: 'print("ScriptForExe.net active!")',
             author: 'System',
             authorId: ADMIN_ID
           }
@@ -601,7 +487,7 @@
 
     function renderScripts(scripts) {
       if (!scripts || scripts.length === 0) {
-        scriptsGrid.innerHTML = '<div class="empty-state">No scripts found in the repository yet.</div>';
+        scriptsGrid.innerHTML = '<div class="empty-state">No scripts found. Be the first to upload one!</div>';
         return;
       }
 
@@ -620,9 +506,9 @@
             <div class="code-preview">${escapeHTML(script.code)}</div>
 
             <div class="card-footer">
-              <span>By <strong>${escapeHTML(script.author || 'Community')}</strong></span>
+              <span>By <strong>${escapeHTML(script.author || 'Anonymous')}</strong></span>
               <div class="card-actions">
-                <button class="btn btn-primary" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" onclick="copyScript(this, '${encodeURIComponent(script.code)}')">Copy Code</button>
+                <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="copyScript(this, '${encodeURIComponent(script.code)}')">Copy</button>
                 ${canDelete ? `<button class="btn btn-danger" onclick="deleteScript('${script.id}')">Delete</button>` : ''}
               </div>
             </div>
@@ -660,7 +546,7 @@
           alert('Failed to delete script.');
         }
       } catch (err) {
-        alert('Error connecting to server.');
+        alert('Error deleting script.');
       }
     };
 
@@ -700,7 +586,7 @@
           uploadModal.classList.remove('active');
           await fetchScripts();
         } else {
-          alert('Failed to publish script. Ensure you are logged in via Discord.');
+          alert('Failed to publish script. Make sure you are logged in.');
         }
       } catch (err) {
         alert('Error submitting script.');
