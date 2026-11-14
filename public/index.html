@@ -3,42 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ScriptForExe.net — Community Script Repository</title>
+  <title>ScriptForExe.net — Premium Script Repository</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0b0e14;
-      --bg-secondary: #151923;
-      --bg-card: #1c212e;
+      --bg-base: #07090e;
+      --bg-surface: #0d1117;
+      --bg-card: rgba(22, 27, 34, 0.75);
       --border-color: rgba(255, 255, 255, 0.08);
-      --text-primary: #f3f4f6;
-      --text-secondary: #9ca3af;
+      --border-hover: rgba(59, 130, 246, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
       --accent: #3b82f6;
-      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
       --discord: #5865F2;
       --discord-hover: #4752C4;
       --danger: #ef4444;
       --success: #22c55e;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg-primary);
+      background-color: var(--bg-base);
       color: var(--text-primary);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(88, 101, 242, 0.04) 0%, transparent 40%);
     }
 
-    /* Navbar */
     nav {
-      background-color: var(--bg-secondary);
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
       padding: 1rem 2rem;
       position: sticky;
@@ -47,7 +50,7 @@
     }
 
     .nav-container {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -56,28 +59,23 @@
     }
 
     .brand {
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: 1.35rem;
+      font-weight: 800;
       color: var(--text-primary);
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-
     .brand span {
-      color: var(--accent);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .btn {
-      padding: 0.55rem 1.1rem;
-      border-radius: 6px;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
@@ -85,262 +83,57 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      transition: background-color 0.2s, transform 0.1s;
+      gap: 0.6rem;
+      transition: all 0.2s ease;
     }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn-discord {
-      background-color: var(--discord);
-      color: #fff;
-    }
-
-    .btn-discord:hover {
-      background-color: var(--discord-hover);
-    }
-
-    .btn-primary {
-      background-color: var(--accent);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .btn-outline {
-      background-color: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-    }
-
-    .btn-outline:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .btn-danger {
-      background-color: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 0.35rem 0.7rem;
-      font-size: 0.8rem;
-    }
-
-    .btn-danger:hover {
-      background-color: var(--danger);
-      color: #fff;
-    }
+    .btn-discord { background-color: var(--discord); color: #fff; box-shadow: 0 4px 14px rgba(88, 101, 242, 0.3); }
+    .btn-discord:hover { background-color: var(--discord-hover); }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
+    .btn-primary:hover { transform: translateY(-1px); opacity: 0.95; }
+    .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
+    .btn-outline:hover { background-color: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.15); }
+    .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    .btn-danger:hover { background-color: var(--danger); color: #fff; }
 
     .user-profile {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-    }
-
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
+      background: var(--bg-surface);
+      padding: 0.35rem 0.85rem 0.35rem 0.35rem;
+      border-radius: 50px;
       border: 1px solid var(--border-color);
     }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); }
+    .admin-badge { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.2)); color: #60a5fa; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
 
-    .admin-badge {
-      background-color: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
-      font-size: 0.75rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
+    main { max-width: 1300px; width: 100%; margin: 2.5rem auto; padding: 0 2rem; flex: 1; }
+    .hero-section { margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+    .hero-title h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .hero-title p { color: var(--text-secondary); font-size: 1rem; }
 
-    /* Main Content */
-    main {
-      max-width: 1200px;
-      width: 100%;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
+    .header-controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+    .search-bar { flex: 1; min-width: 280px; max-width: 450px; position: relative; }
+    .search-bar input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.75rem; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; }
+    .search-bar input:focus { outline: none; border-color: var(--accent); }
+    .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
 
-    .header-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
+    .scripts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; }
+    .script-card { background-color: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1.25rem; transition: all 0.25s ease; }
+    .script-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); }
 
-    .search-bar {
-      flex: 1;
-      min-width: 260px;
-      max-width: 450px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      padding: 0.65rem 1rem;
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-    }
-
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    /* Scripts Grid */
-    .scripts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .script-card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .card-game {
-      font-size: 0.8rem;
-      background-color: rgba(255, 255, 255, 0.06);
-      color: var(--text-secondary);
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-
-    .card-desc {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    .code-preview {
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 0.75rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.8rem;
-      color: #a5b4fc;
-      overflow-x: auto;
-      white-space: pre;
-      max-height: 90px;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border-color);
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    /* Modal */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.75);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-      z-index: 200;
-    }
-
-    .modal-backdrop.active {
-      display: flex;
-    }
-
-    .modal {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      width: 100%;
-      max-width: 520px;
-      padding: 1.75rem;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.65rem;
-      background-color: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.95rem;
-    }
-
-    .form-group textarea {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      min-height: 130px;
-      resize: vertical;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 1rem;
-      color: var(--text-secondary);
-      grid-column: 1 / -1;
-    }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+    .card-title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+    .card-game { font-size: 0.75rem; font-weight: 600; background-color: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); padding: 0.25rem 0.65rem; border-radius: 6px; white-space: nowrap; }
+    .card-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+    .code-preview { background-color: #05070a; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #38bdf8; overflow-x: auto; white-space: pre; max-height: 110px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-secondary); }
+    .card-actions { display: flex; gap: 0.5rem; }
+    .empty-state { text-align: center; padding: 5rem 1rem; color: var(--text-secondary); grid-column: 1 / -1; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 12px; }
   </style>
 </head>
 <body>
 
-  <!-- Navigation -->
   <nav>
     <div class="nav-container">
       <a href="/" class="brand">ScriptFor<span>Exe</span>.net</a>
@@ -353,59 +146,33 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main>
+    <div class="hero-section">
+      <div class="hero-title">
+        <h1>Community Scripts</h1>
+        <p>Discover, share, and utilize user-contributed scripts securely.</p>
+      </div>
+      <a href="/upload.html" class="btn btn-primary" id="openUploadBtn" style="display: none;">+ Upload Script</a>
+    </div>
+
     <div class="header-controls">
       <div class="search-bar">
+        <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input type="text" id="searchInput" placeholder="Search scripts by title, game, or author..." />
       </div>
-      <button class="btn btn-primary" id="openUploadBtn" style="display: none;">+ Upload Script</button>
     </div>
 
     <div class="scripts-grid" id="scriptsGrid">
-      <div class="empty-state">Loading scripts...</div>
+      <div class="empty-state">Loading scripts repository...</div>
     </div>
   </main>
 
-  <!-- Upload Modal -->
-  <div class="modal-backdrop" id="uploadModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>Publish New Script</h2>
-        <button class="btn btn-outline" id="closeModalBtn" style="padding: 0.3rem 0.6rem;">✕</button>
-      </div>
-      <form id="uploadForm">
-        <div class="form-group">
-          <label for="scriptTitle">Script Title</label>
-          <input type="text" id="scriptTitle" required placeholder="e.g., Auto Farm Hub v2" />
-        </div>
-        <div class="form-group">
-          <label for="scriptGame">Target Game / Category</label>
-          <input type="text" id="scriptGame" required placeholder="e.g., Universal / Roblox" />
-        </div>
-        <div class="form-group">
-          <label for="scriptDesc">Short Description</label>
-          <input type="text" id="scriptDesc" required placeholder="Brief summary of features..." />
-        </div>
-        <div class="form-group">
-          <label for="scriptCode">Script Code / Loadstring</label>
-          <textarea id="scriptCode" required placeholder='loadstring(game:HttpGet("..."))()'></textarea>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
-          <button type="button" class="btn btn-outline" id="cancelUploadBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Publish Script</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Footer with Better Uptime Status Link -->
-  <footer style="margin-top: 4rem; padding: 1.5rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-family: system-ui, -apple-system, sans-serif; font-size: 0.9rem; color: #9ca3af;">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+  <footer style="margin-top: 5rem; padding: 2rem 1rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.9rem; color: var(--text-secondary); background: var(--bg-surface);">
+    <div style="max-width: 1300px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
       <span>&copy; 2026 ScriptForExe.net</span>
-      <span style="opacity: 0.4;">•</span>
-      <a href="https://scriptsforexe-net.betteruptime.com/" target="_blank" rel="noopener noreferrer" style="color: #e5e7eb; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#e5e7eb'">
-        <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #22c55e;"></span>
+      <span style="opacity: 0.3;">•</span>
+      <a href="https://scriptsforexe-net.betteruptime.com/" target="_blank" rel="noopener noreferrer" style="color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='var(--text-primary)'">
+        <span style="width: 8px; height: 8px; background-color: var(--success); border-radius: 50%; display: inline-block;"></span>
         System Status
       </a>
     </div>
@@ -420,95 +187,71 @@
     const openUploadBtn = document.getElementById('openUploadBtn');
     const scriptsGrid = document.getElementById('scriptsGrid');
     const searchInput = document.getElementById('searchInput');
-    const uploadModal = document.getElementById('uploadModal');
-    const uploadForm = document.getElementById('uploadForm');
 
     function escapeHTML(str) {
       if (!str) return '';
-      return str.replace(/[&<>'"]/g, tag => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;'
-      }[tag]));
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
     }
 
     async function fetchUser() {
       try {
-        const res = await fetch('/api/user');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.id) {
-            currentUser = data;
-            const isAdmin = currentUser.id === ADMIN_ID;
-            const avatarUrl = currentUser.avatar
-              ? `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`
-              : 'https://cdn.discordapp.com/embed/avatars/0.png';
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          currentUser = data.user;
+          const isAdmin = currentUser.id === ADMIN_ID || currentUser.isAdmin;
 
-            authSection.innerHTML = `
-              <div class="user-profile">
-                <img src="${avatarUrl}" alt="Avatar" class="user-avatar" />
-                <span>${escapeHTML(currentUser.username)}</span>
-                ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
-                <a href="/auth/logout" class="btn btn-outline" style="padding: 0.4rem 0.8rem;">Logout</a>
-              </div>
-            `;
-            openUploadBtn.style.display = 'inline-flex';
-          }
+          authSection.innerHTML = `
+            <div class="user-profile">
+              <img src="${currentUser.avatar}" alt="Avatar" class="user-avatar" />
+              <span style="font-weight: 600; font-size: 0.9rem;">${escapeHTML(currentUser.username)}</span>
+              ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+              <a href="/logout" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-left: 0.25rem;">Logout</a>
+            </div>
+          `;
+          openUploadBtn.style.display = 'inline-flex';
         }
       } catch (err) {
-        console.log('Auth check skipped or offline');
+        console.log('Not authenticated');
       }
     }
 
     async function fetchScripts() {
       try {
         const res = await fetch('/api/scripts');
-        if (!res.ok) throw new Error('API failed');
         allScripts = await res.json();
         renderScripts(allScripts);
       } catch (err) {
-        // Fallback demo script so the page never locks up on "Loading scripts..."
-        allScripts = [
-          {
-            id: 'demo-1',
-            title: 'Welcome Hub (Demo)',
-            game: 'Universal',
-            description: 'Your repository is connected and ready. Database endpoints will populate here.',
-            code: 'print("ScriptForExe.net active!")',
-            author: 'System',
-            authorId: ADMIN_ID
-          }
-        ];
-        renderScripts(allScripts);
+        scriptsGrid.innerHTML = '<div class="empty-state">Failed to load scripts repository.</div>';
       }
     }
 
     function renderScripts(scripts) {
       if (!scripts || scripts.length === 0) {
-        scriptsGrid.innerHTML = '<div class="empty-state">No scripts found. Be the first to upload one!</div>';
+        scriptsGrid.innerHTML = '<div class="empty-state">No scripts found in the repository yet. Be the first to upload!</div>';
         return;
       }
 
       scriptsGrid.innerHTML = scripts.map(script => {
-        const canDelete = currentUser && (currentUser.id === ADMIN_ID || currentUser.id === script.authorId);
+        const authorId = script.authorId || script.author?.id;
+        const canDelete = currentUser && (currentUser.id === ADMIN_ID || currentUser.isAdmin || currentUser.id === authorId);
+        const codeText = script.code || script.scriptContent || '';
+
         return `
           <div class="script-card">
             <div>
               <div class="card-header">
                 <div class="card-title">${escapeHTML(script.title)}</div>
-                <span class="card-game">${escapeHTML(script.game || 'Universal')}</span>
+                <span class="card-game">${escapeHTML(script.category || script.game || 'Universal')}</span>
               </div>
               <p class="card-desc" style="margin-top: 0.5rem;">${escapeHTML(script.description)}</p>
             </div>
-
-            <div class="code-preview">${escapeHTML(script.code)}</div>
-
+            <div class="code-preview">${escapeHTML(codeText)}</div>
             <div class="card-footer">
-              <span>By <strong>${escapeHTML(script.author || 'Anonymous')}</strong></span>
+              <span>By <strong>${escapeHTML(script.author?.username || script.author || 'Community')}</strong></span>
               <div class="card-actions">
-                <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="copyScript(this, '${encodeURIComponent(script.code)}')">Copy</button>
+                <a href="/page.html?id=${script.id}" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">View</a>
+                <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="copyScript(this, '${encodeURIComponent(codeText)}')">Copy</button>
                 ${canDelete ? `<button class="btn btn-danger" onclick="deleteScript('${script.id}')">Delete</button>` : ''}
               </div>
             </div>
@@ -518,24 +261,15 @@
     }
 
     window.copyScript = function(btn, encodedCode) {
-      const code = decodeURIComponent(encodedCode);
-      navigator.clipboard.writeText(code).then(() => {
+      navigator.clipboard.writeText(decodeURIComponent(encodedCode)).then(() => {
         const originalText = btn.textContent;
         btn.textContent = 'Copied!';
         btn.style.backgroundColor = 'var(--success)';
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.style.backgroundColor = '';
-        }, 1500);
+        setTimeout(() => { btn.textContent = originalText; btn.style.backgroundColor = ''; }, 1500);
       });
     };
 
     window.deleteScript = async function(id) {
-      if (id.startsWith('demo-')) {
-        allScripts = allScripts.filter(s => s.id !== id);
-        renderScripts(allScripts);
-        return;
-      }
       if (!confirm('Are you sure you want to delete this script?')) return;
       try {
         const res = await fetch(`/api/scripts/${id}`, { method: 'DELETE' });
@@ -546,7 +280,7 @@
           alert('Failed to delete script.');
         }
       } catch (err) {
-        alert('Error deleting script.');
+        alert('Error connecting to server.');
       }
     };
 
@@ -554,43 +288,10 @@
       const q = e.target.value.toLowerCase();
       const filtered = allScripts.filter(s =>
         (s.title && s.title.toLowerCase().includes(q)) ||
-        (s.game && s.game.toLowerCase().includes(q)) ||
-        (s.author && s.author.toLowerCase().includes(q)) ||
+        (s.category && s.category.toLowerCase().includes(q)) ||
         (s.description && s.description.toLowerCase().includes(q))
       );
       renderScripts(filtered);
-    });
-
-    openUploadBtn.addEventListener('click', () => uploadModal.classList.add('active'));
-    document.getElementById('closeModalBtn').addEventListener('click', () => uploadModal.classList.remove('active'));
-    document.getElementById('cancelUploadBtn').addEventListener('click', () => uploadModal.classList.remove('active'));
-
-    uploadForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        title: document.getElementById('scriptTitle').value.trim(),
-        game: document.getElementById('scriptGame').value.trim(),
-        description: document.getElementById('scriptDesc').value.trim(),
-        code: document.getElementById('scriptCode').value.trim()
-      };
-
-      try {
-        const res = await fetch('/api/scripts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-          uploadForm.reset();
-          uploadModal.classList.remove('active');
-          await fetchScripts();
-        } else {
-          alert('Failed to publish script. Make sure you are logged in.');
-        }
-      } catch (err) {
-        alert('Error submitting script.');
-      }
     });
 
     (async () => {
