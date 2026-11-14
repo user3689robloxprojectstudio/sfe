@@ -8,30 +8,38 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Required for secure cookies behind Vercel's proxy
+app.set('trust proxy', 1);
+
 // ==========================================
 // 1. FIREBASE ADMIN INITIALIZATION
 // ==========================================
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  // Production / Vercel environment variable approach
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://hyperupload-default-rtdb.firebaseio.com"
-  });
-} else {
-  // Local fallback (if you keep serviceAccountKey.json locally for testing)
+if (!admin.apps.length) {
   try {
-    const serviceAccount = require('./serviceAccountKey.json');
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: "https://hyperupload-default-rtdb.firebaseio.com"
-    });
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      // Fix escaped newlines in private_key if pasted into Vercel UI
+      if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      }
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://hyperupload-default-rtdb.firebaseio.com"
+      });
+    } else {
+      const serviceAccount = require('./serviceAccountKey.json');
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://hyperupload-default-rtdb.firebaseio.com"
+      });
+    }
   } catch (err) {
-    console.error("Firebase Admin initialization error: Missing serviceAccountKey.json or FIREBASE_SERVICE_ACCOUNT env var.");
+    console.error("Firebase Admin init failed. Check FIREBASE_SERVICE_ACCOUNT env var:", err.message);
   }
 }
 
-const db = admin.firestore();
+// Safely get Firestore instance only if Firebase initialized
+const db = admin.apps.length ? admin.firestore() : null;
 
 // ==========================================
 // 2. CONFIGURATION & MIDDLEWARE
@@ -46,7 +54,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'scriptforexe_super_secret_key',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 * 1000 }
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 
+  }
 }));
 
 app.use(passport.initialize());
@@ -58,10 +70,15 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
+const callbackURL = process.env.DISCORD_CALLBACK_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://scriptsforexe.net' 
+    : 'http://localhost:3000/auth/discord/callback');
+
 passport.use(new DiscordStrategy({
     clientID: process.env.DISCORD_CLIENT_ID || 'YOUR_DISCORD_CLIENT_ID',
     clientSecret: process.env.DISCORD_CLIENT_SECRET || 'YOUR_DISCORD_CLIENT_SECRET',
-    callbackURL: process.env.DISCORD_CALLBACK_URL || '/auth/discord/callback',
+    callbackURL: callbackURL,
     scope: ['identify', 'guilds']
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -70,13 +87,16 @@ passport.use(new DiscordStrategy({
       const userData = {
         id: profile.id,
         username: profile.username,
-        avatar: profile.avatar ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png',
+        avatar: profile.avatar 
+          ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png` 
+          : 'https://cdn.discordapp.com/embed/avatars/0.png',
         isAdmin: isAdmin,
         lastLogin: admin.firestore.FieldValue.serverTimestamp()
       };
 
-      // Store/Update user session info in Firestore
-      await db.collection('users').doc(profile.id).set(userData, { merge: true });
+      if (db) {
+        await db.collection('users').doc(profile.id).set(userData, { merge: true });
+      }
       return done(null, userData);
     } catch (err) {
       return done(err, null);
@@ -110,8 +130,16 @@ app.get('/api/me', (req, res) => {
 // 4. SCRIPT REPOSITORY API ENDPOINTS (FIRESTORE)
 // ==========================================
 
+// Helper middleware to verify DB is connected
+const requireDb = (req, res, next) => {
+  if (!db) {
+    return res.status(500).json({ error: 'Database not configured. Missing FIREBASE_SERVICE_ACCOUNT in Vercel.' });
+  }
+  next();
+};
+
 // Get all scripts
-app.get('/api/scripts', async (req, res) => {
+app.get('/api/scripts', requireDb, async (req, res) => {
   try {
     const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').get();
     const scripts = [];
@@ -126,7 +154,7 @@ app.get('/api/scripts', async (req, res) => {
 });
 
 // Get single script by ID
-app.get('/api/scripts/:id', async (req, res) => {
+app.get('/api/scripts/:id', requireDb, async (req, res) => {
   try {
     const scriptRef = db.collection('scripts').doc(req.params.id);
     const doc = await scriptRef.get();
@@ -135,9 +163,7 @@ app.get('/api/scripts/:id', async (req, res) => {
       return res.status(404).json({ error: 'Script not found' });
     }
 
-    // Increment views counter
     await scriptRef.update({ views: admin.firestore.FieldValue.increment(1) });
-
     res.json({ id: doc.id, ...doc.data() });
   } catch (err) {
     console.error("Error fetching script detail:", err);
@@ -146,7 +172,7 @@ app.get('/api/scripts/:id', async (req, res) => {
 });
 
 // Upload new script (Requires Authentication)
-app.post('/api/upload', async (req, res) => {
+app.post('/api/upload', requireDb, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Unauthorized. Please login with Discord.' });
   }
@@ -179,7 +205,7 @@ app.post('/api/upload', async (req, res) => {
 });
 
 // Delete script (Admin or Author only)
-app.delete('/api/scripts/:id', async (req, res) => {
+app.delete('/api/scripts/:id', requireDb, async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -208,11 +234,17 @@ app.delete('/api/scripts/:id', async (req, res) => {
   }
 });
 
-// Fallback to index.html for SPA routing
-app.get('*', (req, res) => {
+// Express 5 compatible fallback to index.html for SPA routing
+app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Only run app.listen() when running locally, NOT on Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export the Express app for Vercel Serverless Functions
+module.exports = app;
