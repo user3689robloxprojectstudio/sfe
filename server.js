@@ -6,7 +6,14 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const admin = require('firebase-admin');
 
+// Initialize Firebase Admin (Make sure GOOGLE_APPLICATION_CREDENTIALS or your environment variables are configured)
+admin.initializeApp({
+  credential: admin.credential.applicationDefault()
+});
+
+const db = admin.firestore();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -14,9 +21,6 @@ const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1566401329134436445'
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || 'YXsJbWZep1P6AYzO8RKfvDD6p5alV3vC';
 const CALLBACK_URL = process.env.CALLBACK_URL || 'https://scriptsforexenet.vercel.app/auth/discord/callback';
 const ADMIN_DISCORD_ID = '1287363175158644757';
-
-const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY || '';
-const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID || '';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,112 +36,53 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser((id, done) => {
-    getUsersCache().then(users => {
-        done(null, users[id] || { id });
-    }).catch(() => done(null, { id }));
+passport.deserializeUser(async (id, done) => {
+    try {
+        const userDoc = await db.collection('users').doc(id).get();
+        if (userDoc.exists) {
+            done(null, { id, ...userDoc.data() });
+        } else {
+            done(null, { id });
+        }
+    } catch {
+        done(null, { id });
+    }
 });
 
 const activeVisitors = new Map();
-let memoryCloudCache = [];
-let memoryUsersCache = {};
 
-async function getCloudData() {
-    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-        try {
-            if (fs.existsSync('cloud_cache.json')) {
-                return JSON.parse(fs.readFileSync('cloud_cache.json', 'utf8'));
-            }
-        } catch {}
-        return memoryCloudCache;
-    }
-    try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const data = await response.json();
-        return data.record?.scripts || memoryCloudCache;
-    } catch {
-        return memoryCloudCache;
-    }
-}
-
-async function saveCloudData(scripts) {
-    memoryCloudCache = scripts;
-    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-        try { fs.writeFileSync('cloud_cache.json', JSON.stringify(scripts, null, 2)); } catch {}
-        return;
-    }
-    try {
-        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const currentData = await getRes.json();
-        const users = currentData.record?.users || memoryUsersCache;
-
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-            body: JSON.stringify({ scripts, users })
-        });
-    } catch {}
-}
-
+// Firebase Helper Functions
 async function getUsersCache() {
-    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-        try {
-            if (fs.existsSync('users_cache.json')) {
-                return JSON.parse(fs.readFileSync('users_cache.json', 'utf8'));
-            }
-        } catch {}
-        return memoryUsersCache;
-    }
-    try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const data = await response.json();
-        return data.record?.users || memoryUsersCache;
-    } catch {
-        return memoryUsersCache;
-    }
+    const users = {};
+    const snapshot = await db.collection('users').get();
+    snapshot.forEach(doc => {
+        users[doc.id] = doc.data();
+    });
+    return users;
 }
 
-async function saveUsersCache(users) {
-    memoryUsersCache = users;
-    if (!JSONBIN_API_KEY || !JSONBIN_BIN_ID) {
-        try { fs.writeFileSync('users_cache.json', JSON.stringify(users, null, 2)); } catch {}
-        return;
-    }
-    try {
-        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        const currentData = await getRes.json();
-        const scripts = currentData.record?.scripts || memoryCloudCache;
-
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-            body: JSON.stringify({ scripts, users })
-        });
-    } catch {}
+async function saveUser(userId, userData) {
+    await db.collection('users').doc(userId).set(userData, { merge: true });
 }
 
 async function addNotification(userId, message) {
-    let users = await getUsersCache();
-    if (users[userId]) {
-        if (!users[userId].notifications) users[userId].notifications = [];
-        users[userId].notifications.unshift({ id: Date.now().toString(), message, createdAt: new Date().toISOString() });
-        await saveUsersCache(users);
+    const userRef = db.collection('users').doc(userId);
+    const doc = await userRef.get();
+    if (doc.exists) {
+        const userData = doc.data();
+        const notifications = userData.notifications || [];
+        notifications.unshift({ id: Date.now().toString(), message, createdAt: new Date().toISOString() });
+        await userRef.update({ notifications });
     }
 }
 
 async function addPoints(userId, amount) {
-    let users = await getUsersCache();
-    if (users[userId]) {
-        users[userId].points = Math.min(50, (users[userId].points || 0) + amount);
-        await saveUsersCache(users);
+    const userRef = db.collection('users').doc(userId);
+    const doc = await userRef.get();
+    if (doc.exists) {
+        const userData = doc.data();
+        const points = Math.min(50, (userData.points || 0) + amount);
+        await userRef.update({ points });
     }
 }
 
@@ -157,7 +102,6 @@ passport.use(new DiscordStrategy({
     callbackURL: CALLBACK_URL,
     scope: ['identify']
 }, async (accessToken, refreshToken, profile, done) => {
-    let users = await getUsersCache();
     let userAvatar = profile.avatar 
         ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${profile.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
         : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(profile.id) >> 22n) % 6n)}.png`;
@@ -165,8 +109,12 @@ passport.use(new DiscordStrategy({
     const realUsername = profile.username || profile.global_name || 'User_' + profile.id.slice(-4);
     const isAdmin = profile.id === ADMIN_DISCORD_ID;
 
-    if (!users[profile.id]) {
-        users[profile.id] = {
+    const userRef = db.collection('users').doc(profile.id);
+    const doc = await userRef.get();
+
+    let userData;
+    if (!doc.exists) {
+        userData = {
             id: profile.id,
             username: realUsername,
             avatar: userAvatar,
@@ -180,13 +128,14 @@ passport.use(new DiscordStrategy({
             isAdmin: isAdmin
         };
     } else {
-        users[profile.id].username = realUsername;
-        users[profile.id].avatar = userAvatar;
-        users[profile.id].isAdmin = isAdmin;
+        userData = doc.data();
+        userData.username = realUsername;
+        userData.avatar = userAvatar;
+        userData.isAdmin = isAdmin;
     }
 
-    await saveUsersCache(users);
-    return done(null, users[profile.id]);
+    await userRef.set(userData, { merge: true });
+    return done(null, userData);
 }));
 
 app.get('/auth/discord', passport.authenticate('discord'));
@@ -195,8 +144,9 @@ app.get('/logout', (req, res) => { req.logout(() => res.redirect('/')); });
 
 app.get('/api/me', async (req, res) => {
     if (!req.isAuthenticated()) return res.json({ authenticated: false });
-    const users = await getUsersCache();
-    const user = users[req.user.id] || req.user;
+    const userDoc = await db.collection('users').doc(req.user.id).get();
+    if (!userDoc.exists) return res.json({ authenticated: false });
+    const user = userDoc.data();
     if (user.banned) { req.logout(() => res.json({ authenticated: false })); return; }
     res.json({ authenticated: true, user });
 });
@@ -205,9 +155,10 @@ const upload = multer({ dest: os.tmpdir() });
 
 app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'scriptFile', maxCount: 1 }, { name: 'code', maxCount: 1 }]), async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    const users = await getUsersCache();
-    if (users[req.user.id] && users[req.user.id].banned) return res.status(403).json({ error: 'Banned' });
+    const userDoc = await db.collection('users').doc(req.user.id).get();
+    if (!userDoc.exists || userDoc.data().banned) return res.status(403).json({ error: 'Banned' });
 
+    const userData = userDoc.data();
     const { title, description, category, gameLink, hasKeySystem, code: bodyCode } = req.body;
     let scriptContent = bodyCode || '';
     const scriptFile = req.files && req.files['scriptFile'] ? req.files['scriptFile'][0] : null;
@@ -224,9 +175,7 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         } catch {}
     }
 
-    const cache = await getCloudData();
     const newScript = {
-        id: Date.now().toString(),
         title: title || 'Untitled',
         description: description || 'No description.',
         category: category || 'Roblox',
@@ -235,7 +184,7 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         image: imageUrl,
         scriptContent: scriptContent,
         code: scriptContent,
-        author: { id: req.user.id, username: users[req.user.id].username, avatar: users[req.user.id].avatar },
+        author: { id: req.user.id, username: userData.username, avatar: userData.avatar },
         authorId: req.user.id,
         likes: [],
         comments: [],
@@ -243,52 +192,60 @@ app.post('/api/upload', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         createdAt: new Date().toISOString()
     };
 
-    cache.unshift(newScript);
-    await saveCloudData(cache);
+    const docRef = await db.collection('scripts').add(newScript);
     await addPoints(req.user.id, 15);
-    res.json({ success: true, id: newScript.id });
+    res.json({ success: true, id: docRef.id });
 });
 
-app.get('/api/scripts', async (req, res) => res.json(await getCloudData()));
+app.get('/api/scripts', async (req, res) => {
+    const snapshot = await db.collection('scripts').orderBy('createdAt', 'desc').get();
+    const scripts = [];
+    snapshot.forEach(doc => {
+        scripts.push({ id: doc.id, ...doc.data() });
+    });
+    res.json(scripts);
+});
 
 app.get('/api/scripts/:id', async (req, res) => {
-    const cache = await getCloudData();
-    const script = cache.find(s => s.id === req.params.id);
-    if (!script) return res.status(404).json({ error: 'Not found' });
+    const scriptRef = db.collection('scripts').doc(req.params.id);
+    const doc = await scriptRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Not found' });
+
+    let script = { id: doc.id, ...doc.data() };
 
     if (!req.session.viewedScripts) req.session.viewedScripts = [];
     if (!req.session.viewedScripts.includes(script.id)) {
         req.session.viewedScripts.push(script.id);
         script.views = (script.views || 0) + 1;
-        await saveCloudData(cache);
+        await scriptRef.update({ views: script.views });
     }
     res.json(script);
 });
 
 app.delete('/api/scripts/:id', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    let cache = await getCloudData();
-    const scriptIndex = cache.findIndex(s => s.id === req.params.id);
-    if (scriptIndex === -1) return res.status(404).json({ error: 'Post not found' });
+    const scriptRef = db.collection('scripts').doc(req.params.id);
+    const doc = await scriptRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Post not found' });
 
-    const script = cache[scriptIndex];
+    const script = doc.data();
     const isOwner = script.authorId === req.user.id || script.author?.id === req.user.id;
-    const users = await getUsersCache();
-    const isAdmin = users[req.user.id]?.isAdmin || req.user.id === ADMIN_DISCORD_ID;
+    const userDoc = await db.collection('users').doc(req.user.id).get();
+    const isAdmin = userDoc.exists && userDoc.data().isAdmin || req.user.id === ADMIN_DISCORD_ID;
 
     if (!isOwner && !isAdmin) return res.status(403).json({ error: 'Forbidden' });
 
-    cache.splice(scriptIndex, 1);
-    await saveCloudData(cache);
+    await scriptRef.delete();
     res.json({ success: true, message: 'Deleted successfully' });
 });
 
 app.post('/api/scripts/:id/like', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
-    const cache = await getCloudData();
-    const script = cache.find(s => s.id === req.params.id);
-    if (!script) return res.status(404).json({ error: 'Not found' });
+    const scriptRef = db.collection('scripts').doc(req.params.id);
+    const doc = await scriptRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Not found' });
 
+    let script = doc.data();
     if (!script.likes) script.likes = [];
     const idx = script.likes.indexOf(req.user.id);
     if (idx > -1) {
@@ -297,21 +254,23 @@ app.post('/api/scripts/:id/like', async (req, res) => {
         script.likes.push(req.user.id);
         await addPoints(req.user.id, 5);
     }
-    await saveCloudData(cache);
-    res.json({ success: true, likes: script.likes.length, ...script });
+    await scriptRef.update({ likes: script.likes });
+    res.json({ success: true, likes: script.likes.length, id: doc.id, ...script });
 });
 
 app.post('/api/scripts/:id/comment', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
     const { text } = req.body;
     if (!text || !text.trim()) return res.status(400).json({ error: 'Empty' });
-    const cache = await getCloudData();
-    const script = cache.find(s => s.id === req.params.id);
-    if (!script) return res.status(404).json({ error: 'Not found' });
+    
+    const scriptRef = db.collection('scripts').doc(req.params.id);
+    const doc = await scriptRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Not found' });
 
+    let script = doc.data();
     if (!script.comments) script.comments = [];
-    const users = await getUsersCache();
-    const currentUser = users[req.user.id] || req.user;
+    const userDoc = await db.collection('users').doc(req.user.id).get();
+    const currentUser = userDoc.exists ? userDoc.data() : req.user;
 
     script.comments.push({ 
         id: Date.now().toString(), 
@@ -322,27 +281,35 @@ app.post('/api/scripts/:id/comment', async (req, res) => {
         createdAt: new Date().toISOString()
     });
     
-    await saveCloudData(cache);
-    res.json({ success: true, comments: script.comments, ...script });
+    await scriptRef.update({ comments: script.comments });
+    res.json({ success: true, comments: script.comments, id: doc.id, ...script });
 });
 
 app.get('/api/users/:id', async (req, res) => {
-    const users = await getUsersCache();
     const userId = req.params.id;
-    let user = users[userId] || Object.values(users).find(u => u.id == userId || u.username === userId);
+    const userDoc = await db.collection('users').doc(userId).get();
+    let user = userDoc.exists ? userDoc.data() : null;
+    
+    if (!user) {
+        const users = await getUsersCache();
+        user = Object.values(users).find(u => u.id == userId || u.username === userId);
+    }
     if (!user) return res.status(404).json({ error: 'User not found' });
-    const cache = await getCloudData();
-    res.json({ user, scripts: cache.filter(s => s.authorId === user.id || s.author?.id === user.id) });
+
+    const snapshot = await db.collection('scripts').where('authorId', '==', user.id).get();
+    const scripts = [];
+    snapshot.forEach(doc => scripts.push({ id: doc.id, ...doc.data() }));
+
+    res.json({ user, scripts });
 });
 
-// Bio update endpoint (Fixes connection error)
 app.post('/api/users/bio', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(401).json({ error: 'Unauthorized' });
     const { bio } = req.body;
-    const users = await getUsersCache();
-    if (users[req.user.id]) {
-        users[req.user.id].bio = bio || '';
-        await saveUsersCache(users);
+    const userRef = db.collection('users').doc(req.user.id);
+    const doc = await userRef.get();
+    if (doc.exists) {
+        await userRef.update({ bio: bio || '' });
         return res.json({ success: true });
     }
     res.status(404).json({ error: 'User not found' });
