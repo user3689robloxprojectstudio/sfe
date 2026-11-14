@@ -1,21 +1,15 @@
 {
-  "name": "theroplayerweb",
-  "version": "1.0.0",
-  "description": "",
+  "name": "scriptforexe",
+  "version": "2.0.0",
+  "description": "Professional Script Repository with Discord Auth & Local Storage",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "express": "^5.3.0",
-    "express-session": "^1.19.0",
-    "firebase-admin": "^13.0.0",
-    "multer": "^2.5.0",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4"
   }
