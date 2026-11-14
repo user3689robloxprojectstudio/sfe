@@ -1,74 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Script | ScriptsForExe.gg</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg-color: #0b0f19; --surface: #121826; --primary: #38bdf8; --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.08); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .card { background: var(--surface); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: 24px; padding: 40px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-        input[type="text"], textarea { width: 100%; padding: 14px; background: rgba(7, 9, 14, 0.6); border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; }
-        input[type="file"] { width: 100%; padding: 12px; background: rgba(7, 9, 14, 0.6); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted); }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
-        .checkbox-group input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-        .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: #0b0f19; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Script — ScriptForExe.net</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #07090e;
+      --bg-surface: #0d1117;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(59, 130, 246, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+    }
+
+    .nav-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .brand span { background: linear-gradient(135deg, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
+    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+    .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
+    .btn-outline:hover { background-color: rgba(255, 255, 255, 0.04); }
+
+    main { max-width: 900px; width: 100%; margin: 3rem auto; padding: 0 2rem; flex: 1; }
+
+    .upload-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    .upload-header { margin-bottom: 2rem; }
+    .upload-header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem; }
+    .upload-header p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+    .form-group textarea { font-family: 'JetBrains Mono', monospace; min-height: 180px; resize: vertical; font-size: 0.85rem; }
+
+    .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+    .auth-warning { background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; display: none; font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h1 style="font-size:1.6rem; font-weight:800; color:var(--primary);">🚀 Upload Script</h1>
-            <a href="/" style="color:var(--primary); text-decoration:none; font-weight:700;">← Back Home</a>
-        </div>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Script Title</label>
-                <input type="text" name="title" required placeholder="e.g. OP Hub">
-            </div>
-            <div class="form-group">
-                <label>Roblox Game Link</label>
-                <input type="text" name="gameLink" required placeholder="https://www.roblox.com/games/...">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="3" required placeholder="Features..."></textarea>
-            </div>
-            <label class="checkbox-group">
-                <input type="checkbox" name="hasKeySystem"> Does this script have a Key System?
-            </label>
-            <div class="form-group">
-                <label>Thumbnail Image</label>
-                <input type="file" name="image" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Script File (.lua or .txt)</label>
-                <input type="file" name="scriptFile" accept=".lua,.txt" required>
-            </div>
-            <button type="submit" class="submit-btn">Publish Script</button>
-        </form>
+
+  <nav>
+    <div class="nav-container">
+      <a href="/" class="brand">ScriptFor<span>Exe</span>.net</a>
+      <a href="/" class="btn btn-outline">← Back to Repository</a>
     </div>
+  </nav>
 
-    <script>
-        async function checkAuth() {
-            const res = await fetch('/api/me');
-            const data = await res.json();
-            if (!data.authenticated) window.location.href = '/auth/discord';
+  <main>
+    <div class="upload-card">
+      <div class="upload-header">
+        <h1>Publish New Script</h1>
+        <p>Contribute your script to the live community repository.</p>
+      </div>
+
+      <div id="authWarning" class="auth-warning">
+        You must be logged in via Discord to publish scripts. <a href="/auth/discord" style="color: #fff; font-weight: 700;">Login here</a>
+      </div>
+
+      <form id="uploadForm">
+        <div class="form-group">
+          <label for="scriptTitle">Script Title</label>
+          <input type="text" id="scriptTitle" required placeholder="e.g., Ultimate Auto Farm Hub" />
+        </div>
+
+        <div class="form-group">
+          <label for="scriptGame">Target Game / Category</label>
+          <input type="text" id="scriptGame" required placeholder="e.g., Roblox / Universal" />
+        </div>
+
+        <div class="form-group">
+          <label for="scriptDesc">Short Description</label>
+          <input type="text" id="scriptDesc" required placeholder="Brief breakdown of core features..." />
+        </div>
+
+        <div class="form-group">
+          <label for="scriptCode">Script Code / Loadstring</label>
+          <textarea id="scriptCode" required placeholder='loadstring(game:HttpGet("https://example.com/script.lua"))()'></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="/" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Publish Script</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const authWarning = document.getElementById('authWarning');
+    const uploadForm = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    let isAuthenticated = false;
+
+    async function checkUser() {
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.authenticated) {
+          isAuthenticated = true;
+          return;
         }
-        checkAuth();
+      } catch (err) {}
+      authWarning.style.display = 'block';
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.5';
+    }
 
-        document.getElementById('uploadForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const res = await fetch('/api/upload', { method: 'POST', body: formData });
-            const data = await res.json();
-            if (res.ok) window.location.href = `/page.html?id=${data.scriptId}`;
-            else alert(data.error || 'Upload failed');
-        };
-    </script>
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!isAuthenticated) {
+        alert('You must be logged in.');
+        return;
+      }
+
+      submitBtn.textContent = 'Publishing...';
+      submitBtn.disabled = true;
+
+      const payload = {
+        title: document.getElementById('scriptTitle').value.trim(),
+        category: document.getElementById('scriptGame').value.trim(),
+        description: document.getElementById('scriptDesc').value.trim(),
+        code: document.getElementById('scriptCode').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          window.location.href = '/';
+        } else {
+          alert('Failed to publish script.');
+          submitBtn.textContent = 'Publish Script';
+          submitBtn.disabled = false;
+        }
+      } catch (err) {
+        alert('Error connecting to server.');
+        submitBtn.textContent = 'Publish Script';
+        submitBtn.disabled = false;
+      }
+    });
+
+    checkUser();
+  </script>
 </body>
 </html>
