@@ -72,12 +72,12 @@ passport.deserializeUser((obj, done) => done(null, obj));
 
 const callbackURL = process.env.DISCORD_CALLBACK_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://scriptsforexe.net' 
+    ? 'https://www.scriptsforexe.net/auth/discord/callback' 
     : 'http://localhost:3000/auth/discord/callback');
 
 passport.use(new DiscordStrategy({
-    clientID: process.env.DISCORD_CLIENT_ID || 'YOUR_DISCORD_CLIENT_ID',
-    clientSecret: process.env.DISCORD_CLIENT_SECRET || 'YOUR_DISCORD_CLIENT_SECRET',
+    clientID: process.env.DISCORD_CLIENT_ID || '1566401329134436445',
+    clientSecret: process.env.DISCORD_CLIENT_SECRET || 'rYUI4pXr5yOb3acLgpmIqwdVldbaPFKf',
     callbackURL: callbackURL,
     scope: ['identify', 'guilds']
   },
