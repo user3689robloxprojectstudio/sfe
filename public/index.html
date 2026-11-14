@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScriptForExe - Premium Script Repository</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+    .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .card-hover:hover { transform: translateY(-3px); border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <header class="glass sticky top-0 z-50 border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="/" class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-code"></i>
+        </div>
+        <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">ScriptForExe</span>
+      </a>
+      <div class="flex items-center space-x-4" id="auth-container">
+        <a href="/upload" class="hidden sm:inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-medium transition shadow-lg shadow-indigo-600/20">
+          <i class="fa-solid fa-plus"></i><span>Upload Script</span>
+        </a>
+        <div id="user-profile"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 py-12 text-center">
+    <h1 class="text-4xl sm:text-6xl font-black tracking-tight mb-4">Discover & Share <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Elite Scripts</span></h1>
+    <p class="text-gray-400 text-lg max-w-2xl mx-auto mb-8">The secure, modern platform for developers and gamers to host, discover, and copy high-performance execution scripts.</p>
+    <div class="max-w-xl mx-auto relative">
+      <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      <input type="text" id="search-input" placeholder="Search scripts by title, category, or author..." class="w-full bg-gray-900/80 border border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition">
+    </div>
+  </section>
+
+  <!-- Main Content / Script Grid -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold flex items-center space-x-2"><i class="fa-solid fa-fire text-indigo-400"></i><span>Trending Scripts</span></h2>
+      <span id="script-count" class="text-sm text-gray-400">Loading scripts...</span>
+    </div>
+    <div id="scripts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Dynamically populated scripts -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="glass border-t border-gray-800 mt-16 py-6 text-center text-sm text-gray-500">
+    <p>&copy; 2026 ScriptForExe.net. All rights reserved.</p>
+  </footer>
+
+  <script>
+    async function loadUserData() {
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        const container = document.getElementById('user-profile');
+        if (data.authenticated) {
+          container.innerHTML = `
+            <div class="flex items-center space-x-3 bg-gray-900/90 border border-gray-800 px-3 py-1.5 rounded-xl">
+              <img src="\${data.user.avatar}" class="w-8 h-8 rounded-full border border-indigo-500">
+              <span class="font-medium text-sm text-gray-200">\${data.user.username}</span>
+              <a href="/logout" class="text-gray-400 hover:text-red-400 ml-2 transition" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <a href="/auth/discord" class="inline-flex items-center space-x-2 bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-xl font-medium transition shadow-lg shadow-[#5865F2]/20">
+              <i class="fa-brands fa-discord"></i><span>Login with Discord</span>
+            </a>
+          `;
+        }
+      } catch (err) {
+        console.error('Failed to load user info', err);
+      }
+    }
+
+    let allScripts = [];
+
+    async function fetchScripts() {
+      try {
+        const res = await fetch('/api/scripts');
+        allScripts = await res.json();
+        renderScripts(allScripts);
+      } catch (err) {
+        document.getElementById('scripts-grid').innerHTML = '<p class="text-red-400 col-span-full text-center">Failed to load scripts.</p>';
+      }
+    }
+
+    function renderScripts(scripts) {
+      const grid = document.getElementById('scripts-grid');
+      document.getElementById('script-count').textContent = `\${scripts.length} script\${scripts.length === 1 ? '' : 's'} available`;
+      
+      if (scripts.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center py-16 text-gray-500"><i class="fa-solid fa-folder-open text-4xl mb-3"></i><p>No scripts found.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = scripts.map(s => `
+        <div class="glass rounded-2xl p-5 card-hover transition duration-200 flex flex-col justify-between border border-gray-800">
+          <div>
+            ${s.thumbnail ? `<div class="mb-4 h-40 rounded-xl overflow-hidden bg-gray-900"><img src="\${s.thumbnail}" class="w-full h-full object-cover"></div>` : ''}
+            <div class="flex justify-between items-start mb-3">
+              <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold px-2.5 py-1 rounded-lg">\${s.category || 'Universal'}</span>
+              <span class="text-xs text-gray-500"><i class="fa-solid fa-eye mr-1"></i>\${s.views || 0}</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-100 mb-2 truncate">\${s.title}</h3>
+            <p class="text-gray-400 text-sm line-clamp-2 mb-4">\${s.description || 'No description provided.'}</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-800/60 mt-auto">
+            <span class="text-xs text-gray-500">By \${s.author ? s.author.username : 'Unknown'}</span>
+            <a href="/script/\${s.id}" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-400 hover:text-white px-3.5 py-1.5 rounded-xl text-sm font-medium transition flex items-center space-x-1.5">
+              <span>View Script</span><i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = allScripts.filter(s => 
+        s.title.toLowerCase().includes(q) || 
+        (s.category && s.category.toLowerCase().includes(q)) ||
+        (s.description && s.description.toLowerCase().includes(q)) ||
+        (s.author && s.author.username.toLowerCase().includes(q))
+      );
+      renderScripts(filtered);
+    });
+
+    loadUserData();
+    fetchScripts();
+  </script>
+</body>
+</html>

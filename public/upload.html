@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Script - ScriptForExe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+    .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="glass sticky top-0 z-50 border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="/" class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-code"></i>
+        </div>
+        <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">ScriptForExe</span>
+      </a>
+      <a href="/" class="text-sm text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Home</a>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-12 flex-grow w-full">
+    <div class="glass rounded-3xl p-8 border border-gray-800 shadow-2xl">
+      <div class="mb-8 text-center">
+        <h1 class="text-3xl font-black mb-2">Upload New Script</h1>
+        <p class="text-gray-400 text-sm">Share your code with the community. Upload a script file or paste code directly.</p>
+      </div>
+
+      <div id="error-alert" class="hidden mb-6 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm"></div>
+
+      <form id="upload-form" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Script Title *</label>
+          <input type="text" id="title" required placeholder="e.g. Universal Aimbot & ESP" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-indigo-500 transition">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Category</label>
+            <select id="category" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-indigo-500 transition">
+              <option value="Universal">Universal</option>
+              <option value="Roblox">Roblox</option>
+              <option value="FPS">FPS</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Thumbnail / Preview Image (Optional)</label>
+            <input type="file" id="thumbnail" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-600/20 file:text-indigo-400 hover:file:bg-indigo-600/30 transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+          <textarea id="description" rows="3" placeholder="Briefly describe what your script does..." class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-indigo-500 transition"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Upload Script File (.lua, .txt, .js) OR Paste Code Below</label>
+          <input type="file" id="scriptFile" accept=".lua,.txt,.js,.py,.cpp" class="w-full mb-4 text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-600/20 file:text-indigo-400 hover:file:bg-indigo-600/30 transition">
+          <textarea id="codeText" rows="8" placeholder="print('Hello ScriptForExe!')" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-4 font-mono text-sm text-gray-200 focus:outline-none focus:border-indigo-500 transition"></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i><span>Publish Script</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errBox = document.getElementById('error-alert');
+      errBox.classList.add('hidden');
+      
+      const formData = new FormData();
+      formData.append('title', document.getElementById('title').value);
+      formData.append('category', document.getElementById('category').value);
+      formData.append('description', document.getElementById('description').value);
+      formData.append('codeText', document.getElementById('codeText').value);
+
+      const scriptFile = document.getElementById('scriptFile').files[0];
+      if (scriptFile) formData.append('scriptFile', scriptFile);
+
+      const thumbnail = document.getElementById('thumbnail').files[0];
+      if (thumbnail) formData.append('thumbnail', thumbnail);
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i><span>Publishing...</span>';
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          window.location.href = `/script/\${data.id}`;
+        } else {
+          errBox.textContent = data.error || 'Failed to upload script. Make sure you are logged in with Discord.';
+          errBox.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Publish Script</span>';
+        }
+      } catch (err) {
+        errBox.textContent = 'An unexpected error occurred.';
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Publish Script</span>';
+      }
+    });
+  </script>
+</body>
+</html>

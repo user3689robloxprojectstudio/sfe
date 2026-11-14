@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Script Detail - ScriptForExe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #0b0f19; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+    .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="glass sticky top-0 z-50 border-b border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="/" class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-code"></i>
+        </div>
+        <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">ScriptForExe</span>
+      </a>
+      <a href="/" class="text-sm text-gray-400 hover:text-white transition"><i class="fa-solid fa-arrow-left mr-1"></i> Back to Home</a>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-12 flex-grow w-full">
+    <div id="script-content">
+      <div class="text-center py-20 text-gray-500">Loading script details...</div>
+    </div>
+  </main>
+
+  <script>
+    async function loadScript() {
+      const pathParts = window.location.pathname.split('/');
+      const id = pathParts[pathParts.length - 1];
+      
+      try {
+        const res = await fetch(`/api/scripts/\${id}`);
+        if (!res.ok) {
+          document.getElementById('script-content').innerHTML = '<div class="text-center py-20"><h2 class="text-2xl font-bold mb-2">Script Not Found</h2><a href="/" class="text-indigo-400 hover:underline">Return Home</a></div>';
+          return;
+        }
+        const s = await res.json();
+        
+        document.title = `\${s.title} - ScriptForExe`;
+        
+        let currentUser = null;
+        try {
+          const meRes = await fetch('/api/me');
+          const meData = await meRes.json();
+          if (meData.authenticated) currentUser = meData.user;
+        } catch(e){}
+
+        const isOwnerOrAdmin = currentUser && (s.author && currentUser.id === s.author.id || currentUser.isAdmin);
+
+        document.getElementById('script-content').innerHTML = `
+          <div class="glass rounded-3xl p-8 border border-gray-800 shadow-2xl">
+            ${s.thumbnail ? `<div class="mb-6 h-64 rounded-2xl overflow-hidden bg-gray-900 border border-gray-800"><img src="\${s.thumbnail}" class="w-full h-full object-cover"></div>` : ''}
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div>
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold px-3 py-1 rounded-lg">\${s.category || 'Universal'}</span>
+                  <span class="text-xs text-gray-400"><i class="fa-solid fa-eye mr-1"></i>\${s.views || 0} views</span>
+                  <span class="text-xs text-gray-400"><i class="fa-solid fa-calendar mr-1"></i>\${new Date(s.createdAt).toLocaleDateString()}</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-black text-white">\${s.title}</h1>
+              </div>
+              <div class="flex items-center space-x-3">
+                <button onclick="copyCode()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-lg shadow-indigo-600/20 flex items-center space-x-2">
+                  <i class="fa-solid fa-copy"></i><span id="copy-text">Copy Script</span>
+                </button>
+                ${isOwnerOrAdmin ? `<button onclick="deleteScript('\${s.id}')" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 px-4 py-2.5 rounded-xl font-medium transition flex items-center space-x-2"><i class="fa-solid fa-trash"></i><span>Delete</span></button>` : ''}
+              </div>
+            </div>
+
+            <p class="text-gray-300 mb-6 bg-gray-900/50 p-4 rounded-xl border border-gray-800/80">\${s.description || 'No description provided.'}</p>
+
+            <div class="mb-4 flex justify-between items-center">
+              <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Source Code</span>
+              <span class="text-xs text-gray-500">Author: \${s.author ? s.author.username : 'Unknown'}</span>
+            </div>
+
+            <div class="relative bg-gray-950 border border-gray-800 rounded-2xl p-4 overflow-x-auto">
+              <pre><code id="code-block" class="text-sm font-mono text-indigo-200">\${escapeHtml(s.code || '-- No code provided')}</code></pre>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('script-content').innerHTML = '<p class="text-red-400 text-center">Failed to load script details.</p>';
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function copyCode() {
+      const code = document.getElementById('code-block').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btnText = document.getElementById('copy-text');
+        btnText.textContent = 'Copied!';
+        setTimeout(() => btnText.textContent = 'Copy Script', 2000);
+      });
+    }
+
+    async function deleteScript(id) {
+      if (!confirm('Are you sure you want to delete this script?')) return;
+      try {
+        const res = await fetch(`/api/scripts/\${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          window.location.href = '/';
+        } else {
+          alert('Failed to delete script.');
+        }
+      } catch (e) {
+        alert('An error occurred.');
+      }
+    }
+
+    loadScript();
+  </script>
+</body>
+</html>
